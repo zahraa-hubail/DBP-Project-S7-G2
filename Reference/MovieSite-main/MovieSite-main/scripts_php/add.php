@@ -1,10 +1,11 @@
 <?php
     session_start();
-    $con = mysqli_connect("localhost","root","","moviesite");
-    if (!$con) {
-        die("Connection failed: " . mysqli_connect_error());
-    }
-
+//    $con = mysqli_connect("localhost","root","","moviesite");
+//    if (!$con) {
+//        die("Connection failed: " . mysqli_connect_error());
+//    }
+    include("../database/DBconn.php");
+    $con = getConnection();
     $userid = $_POST['user_id'];
     $movieid = $_POST['movie_id'];
 

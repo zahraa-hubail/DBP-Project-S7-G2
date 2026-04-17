@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 
 // Check if the user is logged in
@@ -11,13 +12,15 @@ if (!isset($_SESSION['username'])) {
 if (isset($_POST['review_id'])) {
     $review_id = $_POST['review_id'];
 
-    // Database connection
-    $con = mysqli_connect("localhost", "root", "", "moviesite");
-
-    if (!$con) {
-        die("Connection failed: " . mysqli_connect_error());
-    }
-
+    // previous code
+//    $con = mysqli_connect("localhost", "root", "", "moviesite");
+//
+//    if (!$con) {
+//        die("Connection failed: " . mysqli_connect_error());
+//    }
+    include("../database/DBconn.php");
+    $con = getConnection();
+    
     $deleteQuery = "DELETE FROM reviews WHERE id = ?";
     $deleteStmt = $con->prepare($deleteQuery);
     $deleteStmt->bind_param("i", $review_id);

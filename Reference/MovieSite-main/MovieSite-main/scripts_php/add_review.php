@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -8,16 +9,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         // Get the data from the form
         $user_id = $_SESSION['id'];
-        $user_name= isset($_SESSION['username']) ? $_SESSION['username'] : 'null';
+        $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : 'null';
         $movie_id = $_POST['movie_id'];
         $review_text = $_POST['review_text'];
         $rating = $_POST['rating'];
 
-        $con = mysqli_connect('localhost', 'root', '', 'moviesite');
-
-        if (!$con) {
-            die("Connection failed: " . mysqli_connect_error());
-        }
+        include("../database/DBconn.php");
+        $con = getConnection();
 
         $query = "INSERT INTO reviews (user_id, user_name, movie_id, review_text, rating) VALUES (?, ?, ?, ?, ?)";
         $stmt = $con->prepare($query);

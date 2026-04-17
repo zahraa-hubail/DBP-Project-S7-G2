@@ -33,9 +33,10 @@
 
     <main>
         <?php
-
+            // current code
             session_start();
-
+            include("../database/DBconn.php");
+            $con = getConnection();
             function time_elapsed_string($datetime, $full = false) {
                 date_default_timezone_set('Europe/Bucharest');
                 $now = new DateTime;
@@ -68,11 +69,11 @@
 
                 $result=file_get_contents($url);
                 $result=json_decode($result,true);
-
-                $con = mysqli_connect("localhost","root","","moviesite");
-                if(!$con){
-                    die("Connection failed: " . mysqli_connect_error());
-                }
+                // previous code
+//                $con = mysqli_connect("localhost","root","","moviesite");
+//                if(!$con){
+//                    die("Connection failed: " . mysqli_connect_error());
+//                }
 
         ?>
             <div class="container">
@@ -219,7 +220,7 @@
             }
                 echo "</div>";
             }
-            mysqli_close($con);
+           // mysqli_close($con);
         ?>
     </main>
     <script>

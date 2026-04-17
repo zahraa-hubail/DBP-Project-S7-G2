@@ -36,12 +36,16 @@
   </header>
   <main>
     <?php
+    // PREVIOUS CODE
+//        session_start();
+//        $con = mysqli_connect("localhost","root","","moviesite");
+//        if(!$con){
+//            die("Connection failed: " . mysqli_connect_error());
+//        }
+    // current code
         session_start();
-        $con = mysqli_connect("localhost","root","","moviesite");
-        if(!$con){
-            die("Connection failed: " . mysqli_connect_error());
-        }
-
+        include("../database/DBconn.php");
+        $con = getConnection();
         if (!isset($_SESSION['username'])) {
             echo "<div class='form'>
                     <h3>You need to login first.</h3>
@@ -117,7 +121,8 @@
         }
         ?>
     <?php
-          mysqli_close($con);
+    // previous code
+         // mysqli_close($con);
         ?>
   </main>
   <footer>
