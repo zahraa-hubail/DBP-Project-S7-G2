@@ -1,3 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" href="style_auth.css"/>
+</head>
+<body>
+    <header>
+    <a href="../"><img class="logo" src="../logo.png" alt="Movies" /></a>
+    <nav>
+      <ul>
+        <li class="dropdown">
+            <a href="../search/">Search</a>
+            <div class="dropdown-content">
+                <a href="../search/category/">Search Category</a>
+            </div>
+        </li>
+        <li><a href="../account/">Account</a></li>
+        <li class="dropdown">
+          <a href="../about/">About</a>
+          <div class="dropdown-content">
+            <a href="../about/">About Us</a>
+            <a href="../about/movies.html">About Movies</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+  </header>
 <?php
     session_start();
     $con = mysqli_connect("localhost","u202301089","asdASD123!","db202301089");
@@ -41,39 +73,6 @@
   </main>';
     }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login</title>
-    <link rel="stylesheet" href="style_auth.css"/>
-</head>
-<body>
-    <header>
-    <a href="../"><img class="logo" src="../logo.png" alt="Movies" /></a>
-    <nav>
-      <ul>
-        <li class="dropdown">
-            <a href="../search/">Search</a>
-            <div class="dropdown-content">
-                <a href="../search/category/">Search Category</a>
-            </div>
-        </li>
-        <li><a href="../account/">Account</a></li>
-        <li class="dropdown">
-          <a href="../about/">About</a>
-          <div class="dropdown-content">
-            <a href="../about/">About Us</a>
-            <a href="../about/movies.html">About Movies</a>
-          </div>
-        </li>
-      </ul>
-    </nav>
-  </header>
-
     <footer>
         <p>&copy; 2026 MovieSite. All rights reserved.</p>
     </footer>
