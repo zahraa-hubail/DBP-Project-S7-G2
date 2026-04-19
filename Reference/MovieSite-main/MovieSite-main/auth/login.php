@@ -32,7 +32,11 @@
   </header>
 <?php
     session_start();
-    $con = mysqli_connect("localhost","root","","moviesite");
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+    
+    $con = mysqli_connect("localhost","u202301089","asdASD123!","db202301089");
     if(!$con){
         die("Connection failed: " . mysqli_connect_error());
     }
@@ -46,7 +50,7 @@
       $password = stripslashes($_POST['password']);
       $password = mysqli_real_escape_string($con, $password);
   
-      $query = "SELECT * FROM `users` WHERE username='$username' AND password='" . md5($password) . "' AND isEmailConfirmed='1'";
+      $query = "SELECT * FROM `dbProj_users` WHERE username='$username' AND password_hash='" . md5($password) . "' AND is_active='1'";
       $result = mysqli_query($con, $query);
       $rows = mysqli_num_rows($result);
   
@@ -74,7 +78,7 @@
     }
 ?>
     <footer>
-        <p>&copy; 2023 MovieSite. All rights reserved.</p>
+        <p>&copy; 2026 MovieSite. All rights reserved.</p>
     </footer>
 </body>
 </html>

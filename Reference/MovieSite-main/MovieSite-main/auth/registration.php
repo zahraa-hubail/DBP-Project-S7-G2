@@ -38,7 +38,7 @@ use PHPMailer\PHPMailer\Exception;
 require 'vendor/autoload.php';
 
 session_start();
-$con = mysqli_connect("localhost", "root", "", "moviesite");
+$con = mysqli_connect("localhost","u202301089","asdASD123!","db202301089");
 
 if (!$con) {
     die("Connection failed: " . mysqli_connect_error());
