@@ -1,3 +1,46 @@
+<?php
+    session_start();
+    $con = mysqli_connect("localhost","u202301089","asdASD123!","db202301089");
+    if(!$con){
+        die("Connection failed: " . mysqli_connect_error());
+    }
+    if(isset($_SESSION['username'])){
+        header("Location: ../account/");
+        exit();
+    }
+    if (isset($_POST['submit'])) {
+      $username = mysqli_real_escape_string($con, stripslashes($_POST['username']));
+      $password = mysqli_real_escape_string($con, stripslashes($_POST['password']));
+  
+      $query = "SELECT * FROM `dbProj_users` WHERE username='$username' AND password_hash='" . md5($password) . "' AND is_active='1'";
+      $result = mysqli_query($con, $query);
+      $rows = mysqli_num_rows($result);
+  
+      if ($rows == 1) {
+          $user_data = mysqli_fetch_assoc($result);
+          $_SESSION['username'] = $username;
+          $_SESSION['id'] = $user_data['id'];
+          header("Location: ../account/");
+          exit();
+      } else {
+          echo "<div class='form'>
+                <h3>Login failed. Please check your username, password, or verify your email.</h3><br/>
+                <p class='link'>Click here to <a href='login.php'>Login</a></p>
+                </div>";
+      }
+  } else {
+
+  echo '<main>
+  <form class="form" method="post" name="login">
+      <h1 class="login-title">Login</h1>
+      <input type="text" class="login-input" name="username" placeholder="Username" autofocus="true"/>
+      <input type="password" class="login-input" name="password" placeholder="Password"/>
+      <input type="submit" value="Login" name="submit" class="login-button"/>
+      <p class="link"><a href="registration.php">New Registration</a></p>
+  </form>
+  </main>';
+    }
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -30,53 +73,7 @@
       </ul>
     </nav>
   </header>
-<?php
-    session_start();
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-    
-    $con = mysqli_connect("localhost","u202301089","asdASD123!","db202301089");
-    if(!$con){
-        die("Connection failed: " . mysqli_connect_error());
-    }
-    if(isset($_SESSION['username'])){
-        header("Location: ../account/");
-        exit();
-    }
-    if (isset($_POST['submit'])) {
-      $username = stripslashes($_POST['username']);
-      $username = mysqli_real_escape_string($con, $username);
-      $password = stripslashes($_POST['password']);
-      $password = mysqli_real_escape_string($con, $password);
-  
-      $query = "SELECT * FROM `dbProj_users` WHERE username='$username' AND password_hash='" . md5($password) . "' AND is_active='1'";
-      $result = mysqli_query($con, $query);
-      $rows = mysqli_num_rows($result);
-  
-      if ($rows == 1) {
-          $_SESSION['username'] = $username;
-          $_SESSION['id'] = mysqli_fetch_assoc($result)['id'];
-          header("Location: ../account/");
-      } else {
-          echo "<div class='form'>
-                <h3>Login failed. Please check your username, password, or verify your email.</h3><br/>
-                <p class='link'>Click here to <a href='login.php'>Login</a></p>
-                </div>";
-      }
-  } else {
 
-  echo '<main>
-  <form class="form" method="post" name="login">
-      <h1 class="login-title">Login</h1>
-      <input type="text" class="login-input" name="username" placeholder="Username" autofocus="true"/>
-      <input type="password" class="login-input" name="password" placeholder="Password"/>
-      <input type="submit" value="Login" name="submit" class="login-button"/>
-      <p class="link"><a href="registration.php">New Registration</a></p>
-  </form>
-  </main>';
-    }
-?>
     <footer>
         <p>&copy; 2026 MovieSite. All rights reserved.</p>
     </footer>

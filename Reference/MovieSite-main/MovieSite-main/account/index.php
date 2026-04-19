@@ -54,14 +54,14 @@
         }
         else{
             // get email from database and show it
-            $query = "SELECT email FROM `users` WHERE username='" . $_SESSION['username'] . "'";
-            $result = mysqli_query($con, $query) or die(mysql_error());
+            $query = "SELECT email FROM `dbProj_users` WHERE username='" . $_SESSION['username'] . "'";
+            $result = mysqli_query($con, $query) or die(mysqli_error($con));
             $rows = mysqli_num_rows($result);
             $row = mysqli_fetch_assoc($result);
             $email = $row['email'];
             // get user id from database and show it
-            $query = "SELECT id FROM `users` WHERE username='" . $_SESSION['username'] . "'";
-            $result = mysqli_query($con, $query) or die(mysql_error());
+            $query = "SELECT id FROM `dbProj_users` WHERE username='" . $_SESSION['username'] . "'";
+            $result = mysqli_query($con, $query) or die(mysqli_error($con));
             $rows = mysqli_num_rows($result);
             $row = mysqli_fetch_assoc($result);
             $userid = $row['id'];

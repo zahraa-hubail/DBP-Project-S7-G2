@@ -30,12 +30,18 @@
       </ul>
     </nav>
   </header>
-  <?php
+ <?php
+  ini_set('display_errors', 1);
+  ini_set('display_startup_errors', 1);
+  error_reporting(E_ALL);
+  
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-require 'vendor/autoload.php';
+require 'PHPMailer/Exception.php';
+require 'PHPMailer/PHPMailer.php';
+require 'PHPMailer/SMTP.php';
 
 session_start();
 $con = mysqli_connect("localhost","u202301089","asdASD123!","db202301089");
@@ -50,17 +56,14 @@ if (isset($_SESSION['username'])) {
 }
 
 if (isset($_POST['submit'])) {
-    $username = stripslashes($_POST['username']);
-    $username = mysqli_real_escape_string($con, $username);
-    $email = stripslashes($_POST['email']);
-    $email = mysqli_real_escape_string($con, $email);
-    $password = stripslashes($_POST['password']);
-    $password = mysqli_real_escape_string($con, $password);
+    $username = mysqli_real_escape_string($con, stripslashes($_POST['username']));
+    $email = mysqli_real_escape_string($con, stripslashes($_POST['email']));
+    $password = mysqli_real_escape_string($con, stripslashes($_POST['password']));
     $token = bin2hex(random_bytes(50));
 
-    $query = "INSERT into `users` (username, password, email, token, isEmailConfirmed)
-              VALUES ('$username', '" . md5($password) . "', '$email', '$token', '0')";
-    $result = mysqli_query($con, $query);
+$query = "INSERT into `dbProj_users` (role_id, username, password_hash, email, is_active, token, created_at)
+          VALUES (2, '$username', '" . md5($password) . "', '$email', 0, '$token', NOW())";
+$result = mysqli_query($con, $query);
 
     if ($result) {
         $mail = new PHPMailer(true);
@@ -68,18 +71,18 @@ if (isset($_POST['submit'])) {
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'biticasebi@gmail.com'; 
-            $mail->Password = '-'; 
+            $mail->Username = 'thebingeboxco@gmail.com'; 
+            $mail->Password = 'eosj vasi hscl icka'; 
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
             $mail->Port = 465;
 
-            $mail->setFrom('biticasebi@gmail.com', 'MovieSite'); 
+            $mail->setFrom('thebingeboxco@gmail.com', 'TheBingeBox'); 
             $mail->addAddress($email, $username); 
-            $mail->addReplyTo('biticasebi@gmail.com', 'MovieSite'); 
+            $mail->addReplyTo('thebingeboxco@gmail.com', 'TheBingeBox'); 
 
             $mail->isHTML(true);
             $mail->Subject = 'Email Verification';
-            $mail->Body = "Click the following link to verify your email: <a href='http://localhost/Proiect_PI/auth/verified.php?token=$token'>Verify Email</a>";
+            $mail->Body = "Click the following link to verify your email: <a href='http://20.74.143.233/~u202301660/MovieSite-main/MovieSite-main/auth/verified.php?token=$token'>Verify Email</a>";
 
             $mail->send();
             echo "<div class='form'>
