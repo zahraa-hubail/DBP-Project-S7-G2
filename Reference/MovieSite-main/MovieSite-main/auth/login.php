@@ -51,7 +51,7 @@
       if ($rows == 1) {
           $user_data = mysqli_fetch_assoc($result);
           $_SESSION['username'] = $username;
-          $_SESSION['id'] = $user_data['id'];
+          $_SESSION['id'] = $user_data['user_id'];
           header("Location: ../account/");
           exit();
       } else {
