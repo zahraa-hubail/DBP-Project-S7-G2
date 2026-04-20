@@ -44,27 +44,28 @@
 //        }
     // current code
         session_start();
+        error_reporting(E_ALL);
+        ini_set('display_errors', 1);
         include("../database/DBconn.php");
         $con = getConnection();
+        
         if (!isset($_SESSION['username'])) {
             echo "<div class='form'>
                     <h3>You need to login first.</h3>
                     <p class='link'>Click here to <a href='../auth/login.php'>Login</a></p>
                 </div>";
         }
-        else{
-            // get email from database and show it
-            $query = "SELECT email FROM `users` WHERE username='" . $_SESSION['username'] . "'";
-            $result = mysqli_query($con, $query) or die(mysql_error());
-            $rows = mysqli_num_rows($result);
-            $row = mysqli_fetch_assoc($result);
-            $email = $row['email'];
-            // get user id from database and show it
-            $query = "SELECT id FROM `users` WHERE username='" . $_SESSION['username'] . "'";
-            $result = mysqli_query($con, $query) or die(mysql_error());
-            $rows = mysqli_num_rows($result);
-            $row = mysqli_fetch_assoc($result);
-            $userid = $row['id'];
+        else{  
+            // get email and ID from database and show it
+            $user = mysqli_real_escape_string($con, $_SESSION['username']);
+        
+            $query = "SELECT user_id, email FROM `dbProj_users` WHERE username='$user'";
+            $result = mysqli_query($con, $query) or die(mysqli_error($con));
+    
+            if ($row = mysqli_fetch_assoc($result)) 
+            {
+                $email = $row['email'];
+                $userid = $row['user_id'];}
 ?>
           <section class='profile'>
             <div class='detailsandlogout'>
@@ -88,9 +89,9 @@
             $api_key = "a80e29ac528ddd8cf4409afced5495e1";
             $userid = isset($_SESSION['id']) ? $_SESSION['id'] : null;
 
-            if($userid !== null){
-              $query = "SELECT moviesowned.movie_id FROM moviesowned WHERE user_id = '$userid'";
-              $result = mysqli_query($con, $query);
+            if(isset($userid)){
+               $query = "SELECT movie_id FROM `dbProj_movies` WHERE created_by = '$userid'";
+               $result = mysqli_query($con, $query) or die(mysqli_error($con));
               while( $row = mysqli_fetch_assoc($result)):
                 $movieid = $row['movie_id'];
                 $url = "https://api.themoviedb.org/3/movie/$movieid?api_key=$api_key&language=en-US";
@@ -133,7 +134,7 @@
       $(".addbtn").on("click",function(){
         event.preventDefault();
         let movieid = $(this).data("id");
-        let userid= <?php echo $userid; ?>;
+        let userid= <?php echo $userid??0; ?>;
         $.ajax({
           url: "../scripts_php/remove.php",
           type: "POST",

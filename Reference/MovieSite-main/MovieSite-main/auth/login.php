@@ -32,7 +32,7 @@
   </header>
 <?php
     session_start();
-    $con = mysqli_connect("localhost","root","","moviesite");
+    $con = mysqli_connect("localhost","u202301089","asdASD123!","db202301089");
     if(!$con){
         die("Connection failed: " . mysqli_connect_error());
     }
@@ -41,19 +41,19 @@
         exit();
     }
     if (isset($_POST['submit'])) {
-      $username = stripslashes($_POST['username']);
-      $username = mysqli_real_escape_string($con, $username);
-      $password = stripslashes($_POST['password']);
-      $password = mysqli_real_escape_string($con, $password);
+      $username = mysqli_real_escape_string($con, stripslashes($_POST['username']));
+      $password = mysqli_real_escape_string($con, stripslashes($_POST['password']));
   
-      $query = "SELECT * FROM `users` WHERE username='$username' AND password='" . md5($password) . "' AND isEmailConfirmed='1'";
+      $query = "SELECT * FROM `dbProj_users` WHERE username='$username' AND password_hash='" . md5($password) . "' AND is_active='1'";
       $result = mysqli_query($con, $query);
       $rows = mysqli_num_rows($result);
   
       if ($rows == 1) {
+          $user_data = mysqli_fetch_assoc($result);
           $_SESSION['username'] = $username;
-          $_SESSION['id'] = mysqli_fetch_assoc($result)['id'];
+          $_SESSION['id'] = $user_data['user_id'];
           header("Location: ../account/");
+          exit();
       } else {
           echo "<div class='form'>
                 <h3>Login failed. Please check your username, password, or verify your email.</h3><br/>
@@ -74,7 +74,7 @@
     }
 ?>
     <footer>
-        <p>&copy; 2023 MovieSite. All rights reserved.</p>
+        <p>&copy; 2026 MovieSite. All rights reserved.</p>
     </footer>
 </body>
 </html>
