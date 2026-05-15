@@ -57,6 +57,9 @@
     padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
 }
 
 .remove-btn:hover {
@@ -124,3 +127,5 @@
     border-bottom: 1px solid #dddddd;
     color: #333333; 
 }
+
+
