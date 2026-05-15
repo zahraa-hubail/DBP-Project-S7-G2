@@ -1,68 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login</title>
-    <link rel="stylesheet" href="style_auth.css"/>
-</head>
-<body>
-    <header>
-    <a href="../"><img class="logo" src="../logo.png" alt="Movies" /></a>
-    <nav>
-      <ul>
-        <li class="dropdown">
-            <a href="../search/">Search</a>
-            <div class="dropdown-content">
-                <a href="../search/category/">Search Category</a>
-            </div>
-        </li>
-        <li><a href="../account/">Account</a></li>
-        <li class="dropdown">
-          <a href="../about/">About</a>
-          <div class="dropdown-content">
-            <a href="../about/">About Us</a>
-            <a href="../about/movies.html">About Movies</a>
-          </div>
-        </li>
-      </ul>
-    </nav>
-  </header>
-<?php
-    session_start();
-    $con = mysqli_connect("localhost","u202301089","asdASD123!","db202301089");
-    if(!$con){
-        die("Connection failed: " . mysqli_connect_error());
-    }
-    if(isset($_SESSION['username'])){
-        header("Location: ../account/");
-        exit();
-    }
-    if (isset($_POST['submit'])) {
-      $username = mysqli_real_escape_string($con, stripslashes($_POST['username']));
-      $password = mysqli_real_escape_string($con, stripslashes($_POST['password']));
-  
-      $query = "SELECT * FROM `dbProj_users` WHERE username='$username' AND password_hash='" . md5($password) . "' AND is_active='1'";
-      $result = mysqli_query($con, $query);
-      $rows = mysqli_num_rows($result);
-  
-      if ($rows == 1) {
-          $user_data = mysqli_fetch_assoc($result);
-          $_SESSION['username'] = $username;
-          $_SESSION['id'] = $user_data['user_id'];
-          header("Location: ../account/");
-          exit();
-      } else {
-          echo "<div class='form'>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Login</title>
+        <link rel="stylesheet" href="style_auth.css"/>
+    </head>
+    <body>
+        <header>
+            <a href="../"><img class="logo" src="../logo.png" alt="Movies" /></a>
+            <nav>
+                <ul>
+                    <li class="dropdown">
+                        <a href="../search/">Search</a>
+                        <div class="dropdown-content">
+                            <a href="../search/category/">Search Category</a>
+                        </div>
+                    </li>
+                    <li><a href="../account/">Account</a></li>
+                    <li class="dropdown">
+                        <a href="../about/">About</a>
+                        <div class="dropdown-content">
+                            <a href="../about/">About Us</a>
+                            <a href="../about/movies.html">About Movies</a>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+        <?php
+        session_start();
+        $con = mysqli_connect("localhost", "u202301089", "asdASD123!", "db202301089");
+        if (!$con) {
+            die("Connection failed: " . mysqli_connect_error());
+        }
+        if (isset($_SESSION['username'])) {
+            header("Location: ../account/");
+            exit();
+        }
+        if (isset($_POST['submit'])) {
+            $username = mysqli_real_escape_string($con, stripslashes($_POST['username']));
+            $password = mysqli_real_escape_string($con, stripslashes($_POST['password']));
+
+            $query = "SELECT * FROM `dbProj_users` WHERE username='$username' AND password_hash='" . md5($password) . "' AND is_active='1'";
+            $result = mysqli_query($con, $query);
+            $rows = mysqli_num_rows($result);
+
+            if ($rows == 1) {
+                $user_data = mysqli_fetch_assoc($result);
+                $_SESSION['username'] = $username;
+                $_SESSION['id'] = $user_data['user_id'];
+
+                if ($user_data['role_id'] == 1) {
+                    $_SESSION['role'] = 'admin';
+                    header("Location: ../admin/dashboard.php");
+                } elseif ($user_data['role_id'] == 2) {
+                    $_SESSION['role'] = 'creator';
+                    header("Location: ../creator/panel.php");
+                } else {
+                    $_SESSION['role'] = 'viewer';
+                    header("Location: ../account/");
+                }
+                exit();
+            } else {
+                echo "<div class='form'>
                 <h3>Login failed. Please check your username, password, or verify your email.</h3><br/>
                 <p class='link'>Click here to <a href='login.php'>Login</a></p>
                 </div>";
-      }
-  } else {
+            }
+        } else {
 
-  echo '<main>
+            echo '<main>
   <form class="form" method="post" name="login">
       <h1 class="login-title">Login</h1>
       <input type="text" class="login-input" name="username" placeholder="Username" autofocus="true"/>
@@ -71,10 +81,10 @@
       <p class="link"><a href="registration.php">New Registration</a></p>
   </form>
   </main>';
-    }
-?>
-    <footer>
-        <p>&copy; 2026 MovieSite. All rights reserved.</p>
-    </footer>
-</body>
+        }
+        ?>
+        <footer>
+            <p>&copy; 2026 The Binge Box. All rights reserved.</p>
+        </footer>
+    </body>
 </html>
