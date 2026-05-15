@@ -45,15 +45,18 @@ $admin_data = mysqli_fetch_assoc($result);
                 <h2>System Reports</h2>
                 <br>
                 <div class="report-buttons">
-                    <a href="reports.php?type=popular" class="admin-btn">Generate Most Popular Content Report</a>
-                    <a href="reports.php?type=users" class="admin-btn">View All Users</a>
+                    <a href="reports.php" class="admin-btn">Generate Reports</a>
+                    <a href="manage_users.php" class="admin-btn">View All Users</a>
                 </div>
             </section>
 
             <hr>
 
             <section class="admin-section">
-                <h2>Manage Site Content</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Manage Site Content</h2>
+                    <a href="all_movies.php" class="admin-btn" style="background-color: #2c3e50;">View & Edit All Movies</a>
+                </div>
                 <table class="admin-table">
                     <thead>
                         <tr>

@@ -128,4 +128,30 @@
     color: #333333; 
 }
 
+/* Status Badges */
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+.active { background-color: #28a745; }
+.inactive { background-color: #6c757d; }
+
+/* Action Buttons styled as elements, not just text */
+.action-buttons .btn-style {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 13px;
+    transition: 0.3s;
+    display: inline-block;
+}
+
+.edit-btn { background-color: #007bff; color: white; margin-right: 5px; }
+.delete-btn { background-color: #dc3545; color: white; }
+
+.edit-btn:hover { background-color: #0056b3; }
+.delete-btn:hover { background-color: #c82333; }
 
