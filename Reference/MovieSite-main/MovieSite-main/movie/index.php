@@ -1,283 +1,609 @@
+<?php
+
+/*
+--------------------------------------------------
+Enable error reporting for debugging
+--------------------------------------------------
+*/
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+session_start();
+
+include("../database/DBconn.php");
+
+$con = getConnection();
+
+/*
+--------------------------------------------------
+Create human readable review timestamps
+--------------------------------------------------
+*/
+
+function time_elapsed_string($datetime)
+{
+    date_default_timezone_set('Europe/Bucharest');
+
+    $now = new DateTime;
+    $ago = new DateTime($datetime);
+
+    $diff = $now->diff($ago);
+
+    if ($diff->y > 0) return $diff->y . " year(s) ago";
+    if ($diff->m > 0) return $diff->m . " month(s) ago";
+    if ($diff->d > 0) return $diff->d . " day(s) ago";
+    if ($diff->h > 0) return $diff->h . " hour(s) ago";
+    if ($diff->i > 0) return $diff->i . " minute(s) ago";
+
+    return "just now";
+}
+
+/*
+--------------------------------------------------
+Retrieve movie details from TMDB API
+--------------------------------------------------
+*/
+
+if (isset($_GET['id'])) {
+
+    $movie_id = intval($_GET['id']);
+
+    $api_key = "a80e29ac528ddd8cf4409afced5495e1";
+
+    $url = "https://api.themoviedb.org/3/movie/$movie_id?api_key=$api_key&language=en-US";
+
+    $response = file_get_contents($url);
+
+    $result = json_decode($response, true);
+
+    if (!$result || isset($result['success'])) {
+        die("Movie not found.");
+    }
+
+    $is_custom_movie = false;
+
+    /*
+    --------------------------------------------------
+    Automatically save TMDB movie into local database
+    --------------------------------------------------
+    */
+
+    $check_query = "
+    SELECT movie_id
+    FROM dbProj_movies
+    WHERE movie_id = ?
+    ";
+
+    $stmt_check = $con->prepare($check_query);
+
+    $stmt_check->bind_param("i", $movie_id);
+
+    $stmt_check->execute();
+
+    $check_result = $stmt_check->get_result();
+
+    if ($check_result->num_rows == 0) {
+
+        $insert_query = "
+        INSERT INTO dbProj_movies
+        (
+            movie_id,
+            created_by,
+            title,
+            description,
+            director,
+            release_year,
+            status
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        ";
+
+        $stmt_insert = $con->prepare($insert_query);
+
+        $created_by = 1;
+
+        $title = $result['title'];
+
+        $description = $result['overview'];
+
+        $director = "TMDB";
+
+        $release_year = substr($result['release_date'], 0, 4);
+
+        $status = "published";
+
+        $stmt_insert->bind_param(
+            "iisssis",
+            $movie_id,
+            $created_by,
+            $title,
+            $description,
+            $director,
+            $release_year,
+            $status
+        );
+
+        $stmt_insert->execute();
+    }
+}
+
+/*
+--------------------------------------------------
+Retrieve custom creator movie from database
+--------------------------------------------------
+*/
+
+elseif (isset($_GET['custom_id'])) {
+
+    $movie_id = intval($_GET['custom_id']);
+
+    $query = "
+    SELECT *
+    FROM dbProj_movies
+    WHERE movie_id = ?
+    ";
+
+    $stmt = $con->prepare($query);
+
+    $stmt->bind_param("i", $movie_id);
+
+    $stmt->execute();
+
+    $dbMovie = $stmt->get_result()->fetch_assoc();
+
+    if (!$dbMovie) {
+        die("Movie not found.");
+    }
+
+    $result = [
+        'title' => $dbMovie['title'],
+        'overview' => $dbMovie['description'],
+        'release_date' => $dbMovie['release_year'],
+        'poster_path' => null,
+        'vote_average' => "N/A"
+    ];
+
+    $is_custom_movie = true;
+}
+
+else {
+
+    die("Movie not found.");
+}
+
+/*
+--------------------------------------------------
+Fallback values for missing movie information
+--------------------------------------------------
+*/
+
+if (empty($result['overview'])) {
+    $result['overview'] = "No description available.";
+}
+
+if (empty($result['release_date'])) {
+    $result['release_date'] = "Unknown";
+}
+
+/*
+--------------------------------------------------
+Calculate average movie rating
+--------------------------------------------------
+*/
+
+$query_rating = "
+SELECT AVG(stars) AS average_rating
+FROM dbProj_ratings
+WHERE movie_id = ?
+";
+
+$stmt_rating = $con->prepare($query_rating);
+
+$stmt_rating->bind_param("i", $movie_id);
+
+$stmt_rating->execute();
+
+$result_rating = $stmt_rating->get_result();
+
+$row_rating = $result_rating->fetch_assoc();
+
+$average_rating = $row_rating['average_rating'];
+
+if ($average_rating !== null) {
+    $average_rating = round($average_rating, 1);
+} else {
+    $average_rating = "No ratings";
+}
+
+/*
+--------------------------------------------------
+Count total movie reviews
+--------------------------------------------------
+*/
+
+$query_reviews_count = "
+SELECT COUNT(*) AS total_reviews
+FROM dbProj_comments
+WHERE movie_id = ?
+";
+
+$stmt_reviews_count = $con->prepare($query_reviews_count);
+
+$stmt_reviews_count->bind_param("i", $movie_id);
+
+$stmt_reviews_count->execute();
+
+$result_reviews_count = $stmt_reviews_count->get_result();
+
+$row_reviews_count = $result_reviews_count->fetch_assoc();
+
+$total_reviews = $row_reviews_count['total_reviews'];
+
+?>
+
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>
+<?php echo htmlspecialchars($result['title']); ?>
+</title>
+
+<link rel="stylesheet" href="style.css">
+
 </head>
+
 <body>
-    <header>
-        <a href="../"><img class="logo" src="../logo.png" alt="Movies" /></a>
-        <nav>
-        <ul>
-            <li class="dropdown">
-                <a href="../search/">Search</a>
-                <div class="dropdown-content">
-                    <a href="../search/category/">Search Category</a>
-                </div>
-            </li>
-            <li><a href="../account/">Account</a></li>
-            <li class="dropdown">
-          <a href="../about/">About</a>
-          <div class="dropdown-content">
-            <a href="../about/">About Us</a>
-            <a href="../about/movies.html">About Movies</a>
-          </div>
-        </li>
-        </ul>
-        </nav>
-    </header>
 
-    <main>
-        <?php
-            // current code
-            session_start();
-            include("../database/DBconn.php");
-            $con = getConnection();
-            function time_elapsed_string($datetime, $full = false) {
-                date_default_timezone_set('Europe/Bucharest');
-                $now = new DateTime;
-                $ago = new DateTime($datetime);
-                $diff = $now->diff($ago);
-                $w = floor($diff->d / 7);
-                $diff->d -= $w * 7;
-                $string = ['y' => 'year','m' => 'month','w' => 'week','d' => 'day','h' => 'hour','i' => 'minute','s' => 'second'];
-                foreach ($string as $k => &$v) {
-                    if ($k == 'w' && $w) {
-                        $v = $w . ' week' . ($w > 1 ? 's' : '');
-                    } else if (isset($diff->$k) && $diff->$k) {
-                        $v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? 's' : '');
-                    } else {
-                        unset($string[$k]);
-                    }
-                }
-                if (!$full) $string = array_slice($string, 0, 1);
-                return $string ? implode(', ', $string) . ' ago' : 'just now';
-            }
-            
-            if(!isset($_GET['id'])){
-                echo "<h1>Movie not found</h1>";
-            }
-            else{
-                $movie_id=$_GET['id'];
+<header>
 
-                $api_key="a80e29ac528ddd8cf4409afced5495e1";
-                $url="https://api.themoviedb.org/3/movie/$movie_id?api_key=$api_key&language=en-US";
+<a href="../">
+<img class="logo" src="../logo.png">
+</a>
 
-                $result=file_get_contents($url);
-                $result=json_decode($result,true);
-                // previous code
-//                $con = mysqli_connect("localhost","root","","moviesite");
-//                if(!$con){
-//                    die("Connection failed: " . mysqli_connect_error());
-//                }
+<nav>
 
-        ?>
-            <div class="container">
-                <!-- if there is picture show it, if not show another one -->
-                <?php if ($result['poster_path']) { ?>
-                    <img src="https://image.tmdb.org/t/p/w500<?php echo $result['poster_path']; ?>" class="movieimg"/>
-                <?php } else { ?>
-                    <img src="../movies_images/no_image.jpg" class="movieimg" />
-                <?php } ?>
-                <div class="detalii">
-                    <div class="titlu_rating">
-                        <h1><?php echo $result['title']; ?></h1>
-                        <div class="rating">
-                        <?php
-                             //show the average rating
-                            $query2 = "SELECT AVG(rating) AS average_rating FROM reviews WHERE movie_id = $movie_id";
-                            $result2 = mysqli_query($con, $query2);
-                            $row2 = mysqli_fetch_assoc($result2);
-                            $average_rating = round($row2['average_rating'], 1);
+<ul>
 
-                            //if there is no rating show None
-                            if ($average_rating == 0) {
-                                $average_rating = "None";
-                            }
+<li><a href="../search/">Search</a></li>
 
-                            //get total number of reviews
-                            $query3 = "SELECT COUNT(*) AS total_reviews FROM reviews WHERE movie_id = $movie_id";
-                            $result3 = mysqli_query($con, $query3);
-                            $row3 = mysqli_fetch_assoc($result3);
-                            $total_reviews = $row3['total_reviews'];
+<li><a href="../account/">Account</a></li>
 
-                            echo "<h2>MovieSite rating: $average_rating"."⭐"."</h2>";
-                            echo "<h4}>($total_reviews reviews)</h4>";
-                        ?>
-                        </div>
-                    </div>
-                    <br>
-                    <br>
-                    <h2>Description:</h2>
-                    <br>
-                    <div style="width:80%">
-                        <?php echo '<h4 style="font-weight:500">'.$result['overview'].'</h4>'; ?>
-                    </div>
-                    <br>
-                    <br>
-                    <h2>Release date: <?php echo '<h4 style="font-weight:500">'.$result['release_date'].'</h4>'; ?></h2>
-                    <br>
-                    <br>
-                    <h2>Official Score: <?php echo '<h4 style="font-weight:500">'.$result['vote_average'].'</h4>'; ?></h2>
-                    <?php 
-                        //see if the user has the movie in his favorites
-                        $movie=$result['id'];
-                        $userid=isset($_SESSION['id']) ? $_SESSION['id'] : null;
-                        if ($userid !== null) {
-                            $checkQuery = "SELECT * FROM `moviesowned` WHERE user_id = ? AND movie_id = ?";
-                            $checkStmt = $con->prepare($checkQuery);
-                            $checkStmt->bind_param("ii", $userid, $movie);
-                            $checkStmt->execute();
-                            $checkResult = $checkStmt->get_result();
-                        
-                            // If the user has the movie in their owned list, do not display the button
-                            if ($checkResult->num_rows > 0) {
-                                $displayButton = false;
-                            } else {
-                                $displayButton = true;
-                            }
-                        } else {
-                            // User is not logged in, display the button
-                            $displayButton = true;
-                        }
-                        
-                        // Display the button if $displayButton is true
-                        if ($displayButton) {
-                            echo '<img src="../movies_images/add.png" class="addbtn1" data-id="' . $result['id'] . '"/>';
-                        }
-                        
-                    ?>
-                </div>
-            </div>
-            <form id="reviewForm" action="../scripts_php/add_review.php" method="post">
-                <input type="hidden" name="movie_id" value="<?php echo $movie_id; ?>">
-                <div class="review-input">
-                <?php   
-            $username = isset($_SESSION['username']) ? $_SESSION['username'] : null;
-            echo "<h3 class='name'> $username </h3>"; ?>
-                    <textarea name="review_text" rows="7" cols="100" placeholder="Write your review" required></textarea>
-                </div>
-                <div class="rating_form">
-                    <label for="rating_form">Rating:</label>
-                    <div class="stars">
-                        <input type="radio" name="rating" value="5" id="star1" >
-                        <label for="star1">&#9733;</label>
-                        <input type="radio" name="rating" value="4" id="star2">
-                        <label for="star2">&#9733;</label>
-                        <input type="radio" name="rating" value="3" id="star3">
-                        <label for="star3">&#9733;</label>
-                        <input type="radio" name="rating" value="2" id="star4">
-                        <label for="star4">&#9733;</label>
-                        <input type="radio" name="rating" value="1" id="star5" required>
-                        <label for="star5">&#9733;</label>
-                    </div>
-                </div>
-                <div class="submit-button">
-                    <input type="submit" value="Submit Review">
-                </div>
-            </form>
-        <?php
-            $query = "SELECT * FROM reviews WHERE movie_id = $movie_id ORDER BY created_at DESC";
+<li><a href="../about/">About</a></li>
 
-            $result = mysqli_query($con, $query);
-            
-            
+</ul>
 
-            if (mysqli_num_rows($result) > 0) {
-                echo "<div class='reviews'>";
-                echo "<h2>Reviews:</h2>";
-                
-                while ($row = mysqli_fetch_assoc($result)) {
-                    // Display each review with user name
-                    echo "<div class='review'>";
-                    echo "<h3 class='name'><strong>{$row['user_name']}</strong></h3>";
-                    echo "<div class='linia-doi'>";
-                    echo "<div>";
-                    echo "<span class='rating_mic'>" . str_repeat('&#9733;', $row['rating']) . "</span>";
-                    echo "<span class='date'>" . time_elapsed_string($row['created_at']) . "</span>";
-                    echo "</div>";
-                    echo "<div>";
-                    if (isset($_SESSION['username']) && $_SESSION['username'] === $row['user_name']) {
-                        echo "<form id='delete-form' action='../scripts_php/delete_review.php' method='post' style='display: inline;'>";
-                        echo "<input type='hidden' name='review_id' value='{$row['id']}'>";
-                        echo "<input type='hidden' name='movie_id' value='$movie_id'>";
-                        echo "  <button type='submit' onclick='return confirm(\"Are you sure you want to delete this review?\")'>";
-                        echo "    <img width='30' height='30' src='../movies_images/remove.png' alt='Delete Review'>";
-                        echo "  </button>";
-                        echo "</form>";
-                    }
-                    echo "</div>";
-                    echo "</div>";
-                    echo "<p class='content'>{$row['review_text']}</p>";
-                    echo "</div>";
-                }
-            } else {
-                echo "<p>No reviews yet.</p>";
-            }
-                echo "</div>";
-            }
-           // mysqli_close($con);
-        ?>
-    </main>
-    <script>
-        $(document).ready(function(){
-        $(".addbtn1").on("click",function(){
-            console.log("bla");
-            let movieid = $(this).data('id');
-            let userid= <?php echo isset($_SESSION['id']) ? json_encode($_SESSION['id']) : 'null'; ?>;
-            if(userid === null){
-                alert("You need to login first");
-            }
-            else{
-                $.ajax({
-                url: "../scripts_php/add.php",
-                type: "POST",
-                data: {
-                    movie_id: movieid,
-                    user_id: userid
-                },
-                success: function(data){
-                    location.reload();
-                    alert("You have successfully added this movie to your Watchlist!\nYou can find it in your account page");
-                },
-                error: function(){
-                    alert(response);
-               }
-                });
-            }
-        });
-        });
+</nav>
 
-        $(document).ready(function() {
-        $('#reviewForm').submit(function(event) {
-            event.preventDefault();
+</header>
 
-            // Get the form data
-            var formData = $(this).serialize();
+<main>
 
-            // Send the form data to the server using AJAX
-            $.ajax({
-                type: 'POST',
-                url: '../scripts_php/add_review.php',
-                data: formData,
-                success: function(response) {
-                    // Display the success or error message
-                    if (response.includes("Review added successfully")) {
-                        location.reload();
-                    }
-                    else{
-                        alert(response);
-                        location.reload();
-                    }
-                },
-            });
-        });
-    });
+<?php if (isset($_GET['success']) && $_GET['success'] == 'review_added') { ?>
 
-    </script>
+<div class="success-message">
+    Review added successfully!
+</div>
+
+<?php } ?>
+
+<?php if (isset($_GET['success']) && $_GET['success'] == 'review_deleted') { ?>
+
+<div class="success-message delete-message">
+    Review deleted successfully!
+</div>
+
+<?php } ?>
+    
+<div class="container">
+
+<?php if (!$is_custom_movie && !empty($result['poster_path'])) { ?>
+
+<img
+src="https://image.tmdb.org/t/p/w500<?php echo $result['poster_path']; ?>"
+class="movieimg"
+>
+
+<?php } else { ?>
+
+<img
+src="../movies_images/no_image.jpg"
+class="movieimg"
+>
+
+<?php } ?>
+
+<div class="detalii">
+
+<h1>
+<?php echo htmlspecialchars($result['title']); ?>
+</h1>
+
+<div class="rating">
+
+<h2>
+<?php echo $average_rating; ?> ⭐
+</h2>
+
+<h4>
+<?php echo $total_reviews; ?> reviews
+</h4>
+
+</div>
+
+<br><br>
+
+<h2>Description</h2>
+
+<br>
+
+<h4>
+<?php echo htmlspecialchars($result['overview']); ?>
+</h4>
+
+<br><br>
+
+<h2>
+
+Release Date:
+
+<span style="font-weight:400">
+
+<?php echo htmlspecialchars($result['release_date']); ?>
+
+</span>
+
+</h2>
+
+<?php if (!$is_custom_movie) { ?>
+
+<br><br>
+
+<h2>
+
+Official TMDB Score:
+
+<span style="font-weight:400">
+
+<?php echo $result['vote_average']; ?>
+
+</span>
+
+</h2>
+
+<?php } ?>
+
+</div>
+
+</div>
+
+<!-- REVIEW FORM -->
+
+<form
+id="reviewForm"
+action="../scripts_php/add_review.php"
+method="post"
+>
+
+<input
+type="hidden"
+name="movie_id"
+value="<?php echo $movie_id; ?>"
+>
+
+<div class="review-input">
+
+<h3 class="name">
+
+<?php
+
+echo isset($_SESSION['username'])
+? $_SESSION['username']
+: "Guest";
+
+?>
+
+</h3>
+
+<textarea
+name="review_text"
+placeholder="Write your review"
+required
+></textarea>
+
+</div>
+
+<div class="rating_form">
+
+<label>Rating:</label>
+
+<div class="stars">
+
+<input type="radio" name="rating" value="5" id="star5" required>
+<label for="star5">★</label>
+
+<input type="radio" name="rating" value="4" id="star4">
+<label for="star4">★</label>
+
+<input type="radio" name="rating" value="3" id="star3">
+<label for="star3">★</label>
+
+<input type="radio" name="rating" value="2" id="star2">
+<label for="star2">★</label>
+
+<input type="radio" name="rating" value="1" id="star1">
+<label for="star1">★</label>
+
+</div>
+
+</div>
+
+<div class="submit-button">
+
+<input type="submit" value="Submit Review">
+
+</div>
+
+</form>
+
+<?php
+
+/*
+=========================================
+GET REVIEWS
+=========================================
+*/
+
+$query_reviews = "
+SELECT
+    c.comment_id,
+    c.user_id,
+    c.body,
+    c.created_at,
+    r.stars,
+    u.username
+
+FROM dbProj_comments c
+
+LEFT JOIN dbProj_ratings r
+ON c.user_id = r.user_id
+AND c.movie_id = r.movie_id
+
+LEFT JOIN dbProj_users u
+ON c.user_id = u.user_id
+
+WHERE c.movie_id = ?
+
+ORDER BY c.created_at DESC
+";
+
+$stmt_reviews = $con->prepare($query_reviews);
+
+$stmt_reviews->bind_param("i", $movie_id);
+
+$stmt_reviews->execute();
+
+$result_reviews = $stmt_reviews->get_result();
+
+/*
+=========================================
+SHOW REVIEWS
+=========================================
+*/
+
+if ($result_reviews->num_rows > 0) {
+
+    echo "<div class='reviews'>";
+
+    echo "<h2>Reviews</h2>";
+
+    while ($row = $result_reviews->fetch_assoc()) {
+
+        echo "<div class='review'>";
+
+        /*
+        =========================================
+        HEADER
+        =========================================
+        */
+
+        echo "<div class='linia-doi'>";
+
+        echo "<div>";
+
+        echo "<h3 class='name'>";
+        echo htmlspecialchars($row['username']);
+        echo "</h3>";
+
+        echo "<div>";
+
+        echo "<span class='rating_mic'>";
+        echo str_repeat('★', intval($row['stars']));
+        echo "</span>";
+
+        echo "<span class='date'>";
+        echo time_elapsed_string($row['created_at']);
+        echo "</span>";
+
+        echo "</div>";
+
+        echo "</div>";
+
+        /*
+        =========================================
+        DELETE BUTTON
+        =========================================
+        */
+
+        if (
+            isset($_SESSION['id']) &&
+            $_SESSION['id'] == $row['user_id']
+        ) {
+
+            echo "<form
+                    action='../scripts_php/delete_review.php'
+                    method='POST'
+                    style='display:inline;'>";
+
+            echo "<input
+                    type='hidden'
+                    name='review_id'
+                    value='" . $row['comment_id'] . "'>";
+
+            echo "<input
+                    type='hidden'
+                    name='movie_id'
+                    value='" . $movie_id . "'>";
+
+            echo "<button
+                    type='submit'
+                    class='delete-review-btn'
+                    onclick='return confirm(\"Delete this review?\")'>
+                    Delete
+                  </button>";
+
+            echo "</form>";
+        }
+
+        echo "</div>";
+
+        /*
+        =========================================
+        REVIEW TEXT
+        =========================================
+        */
+
+        echo "<p class='content'>";
+        echo htmlspecialchars($row['body']);
+        echo "</p>";
+
+        echo "</div>";
+    }
+
+    echo "</div>";
+
+} else {
+
+    echo "<div class='reviews'>";
+
+    echo "<h2>Reviews</h2>";
+
+    echo "<p>No reviews yet.</p>";
+
+    echo "</div>";
+}
+
+?>
+
+</main>
+
 </body>
+
 </html>

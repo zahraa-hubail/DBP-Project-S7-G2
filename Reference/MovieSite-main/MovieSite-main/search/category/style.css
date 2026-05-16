@@ -1,234 +1,342 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  body {
-    background-color: #f0f0f0;
-    font-family: Arial, sans-serif;
-    position: relative;
-    min-height: 100vh;
-  }
-  
-  header {
-    background-color: rgb(53, 87, 121);
-    color: #fff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 60px;
-    padding: 0 20px;
-  }
-  
-  .logo img {
-    height: 40px;
-    width: auto;
-  }
-  
-  .image {
-    height: 200px;
-    width: auto;
-    border-radius: 10px;
-  }
-  
-  .movie.image {
-    width: 40%;
-  }
-  
-  nav ul {
-    display: flex;
-    list-style: none;
-  }
-  
-  nav li {
-    margin: 0 10px;
-  }
-  
-  nav a {
-    color: #fff;
-    text-decoration: none;
-    padding: 10px;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-  }
-  
-  nav a:hover {
-    background-color: #090f24;
-  }
-  
-  main {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 20px;
-    padding: 20px;
-    padding-bottom: 4rem;
-  }
-  
-  .welcome {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-right: 10vw;
-    padding-left: 10vw;
-    border-radius: 10px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    background-color: #fff;
-  }
-  
-  .welcome-title {
-    font-size: 36px;
-    font-weight: bold;
-    font-family: "Papyrus";
-    margin-bottom: 10px;
-  }
-  
-  .welcome-title span {
-    transition: color 0.1s;
-  }
-  
-  .welcome-title span:hover {
-    color: red;
-    font-size: 40px;
-  }
-  
-  .movie-list {
-    margin-top: 20px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-gap: 40px;
-    margin-bottom: 20px;
-  }
-  
-  .movie {
-    background-color: #fff;
-    text-decoration: none;
-    border-radius: 10px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-    padding: 5px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    align-items: center;
-  }
-  
-  .movie:hover {
-    transform: scale(1.1);
-    transition: transform 0.5s;
-  }
-  
-  .details {
-    display: flex;
-    height: 100%;
-    width: 55%;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
-  }
-  
-  .nameofmovie {
-    background-color: rgb(255, 255, 255);
-    color: #000000;
-    height:auto;
-    min-height: 50%;
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    border-radius: 10px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-  }
-  
-  .director {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-decoration: none;
-    color: black;
-  }
+/* ==========================================
+   Global Styling
+========================================== */
 
-  form {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
 
-.textGenre {
-    margin-right: 40px;
+body{
+
+    background:#f0f0f0;
+
+    font-family:Arial,sans-serif;
+
+    min-height:100vh;
+
+    display:flex;
+
+    flex-direction:column;
 }
 
-input[type="submit"] {
-    padding: 8px;
-    border-radius: 5px;
-    border: none;
-    background-color: rgb(53, 87, 121);
-    color: #fff;
-    cursor: pointer;
+/* ==========================================
+   Header Styling
+========================================== */
+
+header{
+
+    background-color:rgb(53,87,121);
+
+    color:white;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:15px 25px;
+
+    position:relative;
+
+    z-index:1000;
 }
 
-/* Add a hover effect */
-input[type="submit"]:hover {
-    background-color: #090f24; /* Change the background color on hover */
+.logo img{
+
+    width:50px;
 }
 
+/* ==========================================
+   Navigation Styling
+========================================== */
 
-select {
-    padding: 8px;
-    margin-right: 10px;
-    border-radius: 5px;
+nav ul{
+
+    list-style:none;
+
+    display:flex;
+
+    gap:20px;
+
+    align-items:center;
 }
-  
-  footer {
-    background-color: #090f24;
-    color: #fff;
-    text-align: center;
-    bottom: 0;
-    position: absolute;
-    padding: 20px;
-    width: 100%;
-    height: 4rem;
-  }
-  
-  .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: rgb(53, 87, 121);
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    margin-top: 10px;
-    margin-left: -20px;
-    color: #fff;
-    border-radius: 10px;
-    margin-right: 10px;
-  }
-  
-  .dropdown-content a {
-    color: #fff;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    border-radius: 10px;
-  }
-  
-  .dropdown:hover .dropdown-content {
-    display: block;
-  }
-  
-  @media (max-width: 1400px) {
-    .movie-list {
-      grid-template-columns: repeat(3, 1fr);
+
+nav li{
+
+    position:relative;
+}
+
+nav a{
+
+    color:white;
+
+    text-decoration:none;
+
+    padding:12px 18px;
+
+    border-radius:10px;
+
+    transition:0.3s;
+
+    display:block;
+}
+
+nav a:hover{
+
+    background:#1e2f47;
+}
+
+/* ==========================================
+   Dropdown Menu Styling
+========================================== */
+
+.dropdown{
+
+    position:relative;
+}
+
+.dropdown-content{
+
+    display:none;
+
+    position:absolute;
+
+    top:100%;
+    left:0;
+
+    min-width:220px;
+
+    background:rgb(53,87,121);
+
+    border-radius:15px;
+
+    overflow:hidden;
+
+    z-index:9999;
+
+    box-shadow:0 8px 20px rgba(0,0,0,0.2);
+}
+
+.dropdown-content a{
+
+    display:block;
+
+    padding:15px 20px;
+
+    transition:0.3s;
+
+    white-space:nowrap;
+}
+
+.dropdown-content a:hover{
+
+    background:#1e2f47;
+}
+
+.dropdown:hover .dropdown-content{
+
+    display:block;
+}
+
+/* ==========================================
+   Main Content Layout
+========================================== */
+
+main{
+
+    flex:1;
+
+    width:90%;
+
+    max-width:1400px;
+
+    margin:auto;
+
+    padding:50px 20px;
+}
+
+.page-title{
+
+    text-align:center;
+
+    font-size:4rem;
+
+    margin-bottom:40px;
+
+    color:#222;
+}
+
+/* ==========================================
+   Genre Form Styling
+========================================== */
+
+.genre-form{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:15px;
+
+    margin-bottom:50px;
+
+    flex-wrap:wrap;
+}
+
+.genre-form select,
+.genre-form button{
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:12px;
+
+    font-size:1rem;
+}
+
+.genre-form select{
+
+    width:250px;
+
+    background:white;
+}
+
+.genre-form button{
+
+    background:rgb(53,87,121);
+
+    color:white;
+
+    cursor:pointer;
+
+    transition:0.3s;
+}
+
+.genre-form button:hover{
+
+    background:#1e2f47;
+}
+
+/* ==========================================
+   Results Section Styling
+========================================== */
+
+.results-title{
+
+    margin-bottom:30px;
+
+    font-size:2rem;
+
+    color:#222;
+}
+
+.movie-list{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(auto-fill,minmax(250px,1fr));
+
+    gap:30px;
+}
+
+/* ==========================================
+   Movie Card Styling
+========================================== */
+
+.movie-card{
+
+    background:white;
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    text-decoration:none;
+
+    color:black;
+
+    transition:0.3s;
+
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+.movie-card:hover{
+
+    transform:translateY(-8px);
+
+    box-shadow:0 10px 24px rgba(0,0,0,0.15);
+}
+
+.movie-image{
+
+    width:100%;
+
+    height:380px;
+
+    object-fit:cover;
+}
+
+.movie-info{
+
+    padding:20px;
+}
+
+.movie-info h3{
+
+    margin-bottom:15px;
+
+    font-size:1.5rem;
+
+    color:#222;
+}
+
+.movie-info p{
+
+    margin-bottom:8px;
+
+    color:#666;
+}
+
+/* ==========================================
+   Footer Styling
+========================================== */
+
+footer{
+
+    background:#1e2f47;
+
+    color:white;
+
+    text-align:center;
+
+    padding:20px;
+
+    margin-top:auto;
+}
+
+/* ==========================================
+   Responsive Design
+========================================== */
+
+@media (max-width:768px){
+
+    .page-title{
+
+        font-size:2.5rem;
     }
-  }
-  
-  @media (max-width: 1100px) {
-    .movie-list {
-      grid-template-columns: repeat(2, 1fr);
+
+    nav ul{
+
+        gap:10px;
     }
-  }
-  
-  @media (max-width: 768px) {
-    .movie-list {
-      grid-template-columns: repeat(1, 1fr);
+
+    .movie-list{
+
+        grid-template-columns:1fr;
     }
-  }
+}

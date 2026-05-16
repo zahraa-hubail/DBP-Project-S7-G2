@@ -2,44 +2,98 @@
 
 session_start();
 
-// Check if the user is logged in
-if (!isset($_SESSION['username'])) {
-    header("Location: ../login.php"); // Redirect to login page if not logged in
-    exit();
+include("../database/DBconn.php");
+
+$con = getConnection();
+
+/*
+--------------------------------------------------
+Check if user is logged in
+--------------------------------------------------
+*/
+
+if (!isset($_SESSION['id'])) {
+
+    die("You must be logged in.");
 }
 
-// Check if review_id is set
-if (isset($_POST['review_id'])) {
-    $review_id = $_POST['review_id'];
+/*
+--------------------------------------------------
+Allow only POST requests
+--------------------------------------------------
+*/
 
-    // previous code
-//    $con = mysqli_connect("localhost", "root", "", "moviesite");
-//
-//    if (!$con) {
-//        die("Connection failed: " . mysqli_connect_error());
-//    }
-    include("../database/DBconn.php");
-    $con = getConnection();
-    
-    $deleteQuery = "DELETE FROM reviews WHERE id = ?";
-    $deleteStmt = $con->prepare($deleteQuery);
-    $deleteStmt->bind_param("i", $review_id);
-    $deleteStmt->execute();
-    $movie_id = $_POST['movie_id'];
+if ($_SERVER["REQUEST_METHOD"] != "POST") {
 
-    // Check if the deletion was successful
-    if ($deleteStmt->affected_rows > 0) {
-        header("Location: ../movie/?id=$movie_id");
-        exit();
-    } else {
-        header("Location: ../movie/?id=$movie_id&error=delete_failed");
-        exit();
-    }
-
-    $deleteStmt->close();
-    $con->close();
-} else {
-    header("Location: ../index.php");
-    exit();
+    die("Invalid request.");
 }
+
+/*
+--------------------------------------------------
+Retrieve review deletion data
+--------------------------------------------------
+*/
+
+$user_id = intval($_SESSION['id']);
+
+$movie_id = intval($_POST['movie_id']);
+
+$review_id = intval($_POST['review_id']);
+
+/*
+--------------------------------------------------
+Delete review comment
+--------------------------------------------------
+*/
+
+$delete_comment = "
+DELETE FROM dbProj_comments
+WHERE comment_id = ?
+AND user_id = ?
+";
+
+$stmt_comment = $con->prepare($delete_comment);
+
+$stmt_comment->bind_param(
+    "ii",
+    $review_id,
+    $user_id
+);
+
+$stmt_comment->execute();
+
+/*
+--------------------------------------------------
+Delete associated movie rating
+--------------------------------------------------
+*/
+
+$delete_rating = "
+DELETE FROM dbProj_ratings
+WHERE movie_id = ?
+AND user_id = ?
+";
+
+$stmt_rating = $con->prepare($delete_rating);
+
+$stmt_rating->bind_param(
+    "ii",
+    $movie_id,
+    $user_id
+);
+
+$stmt_rating->execute();
+
+/*
+--------------------------------------------------
+Redirect back after deletion
+--------------------------------------------------
+*/
+
+header(
+    "Location: ../movie/?id=$movie_id&success=review_deleted"
+);
+
+exit();
+
 ?>
