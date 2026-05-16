@@ -22,21 +22,15 @@ $result = mysqli_query($con, $query);
     </head>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // 1. Find the alert element
             const alert = document.querySelector('.alert');
 
             if (alert) {
-                // 2. Hide the alert after 4 seconds (4000ms)
                 setTimeout(() => {
                     alert.style.transition = "opacity 0.5s ease";
                     alert.style.opacity = "0";
-
-                    // Remove from DOM after fade out
                     setTimeout(() => alert.remove(), 500);
                 }, 4000);
 
-                // 3. Clean the URL (Removes ?msg=... or ?error=... from the address bar)
-                // This prevents the message from reappearing on refresh
                 if (window.history.replaceState) {
                     const url = window.location.protocol + "//" + window.location.host + window.location.pathname;
                     window.history.replaceState({path: url}, '', url);
@@ -71,6 +65,8 @@ $result = mysqli_query($con, $query);
                         if ($_GET['msg'] == 'movie_deleted') {
                             echo "The movie listing has been deleted from the database.";
                         }
+                        if ($_GET['msg'] == 'updated') {
+                        echo " The record has been successfully updated.";}
                         ?>
                     </div>
                 <?php endif; ?>
