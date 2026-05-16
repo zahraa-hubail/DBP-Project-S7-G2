@@ -20,8 +20,33 @@ $admin_data = mysqli_fetch_assoc($result);
     <head>
         <meta charset="UTF-8">
         <title>Admin Dashboard - The Binge Box</title>
-        <link rel="stylesheet" href="../account/account.css"> <link rel="stylesheet" href="admin.css"> </head>
-    <body>
+        <link rel="stylesheet" href="../account/account.css"> <link rel="stylesheet" href="admin.css"> 
+    </head>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // 1. Find the alert element
+            const alert = document.querySelector('.alert');
+
+            if (alert) {
+                // 2. Hide the alert after 4 seconds (4000ms)
+                setTimeout(() => {
+                    alert.style.transition = "opacity 0.5s ease";
+                    alert.style.opacity = "0";
+
+                    // Remove from DOM after fade out
+                    setTimeout(() => alert.remove(), 500);
+                }, 4000);
+
+                // 3. Clean the URL (Removes ?msg=... or ?error=... from the address bar)
+                // This prevents the message from reappearing on refresh
+                if (window.history.replaceState) {
+                    const url = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                    window.history.replaceState({path: url}, '', url);
+                }
+            }
+        });
+    </script>
+    <body class="admin-page">
         <header>
             <div class="logo"><a href="../"><img src="../logo.png" alt="Movies" /></a></div>
             <nav>
@@ -40,7 +65,34 @@ $admin_data = mysqli_fetch_assoc($result);
             </section>
 
             <hr>
+            <?php if (isset($_GET['msg'])): ?>
+                <div class="alert success-alert">
+                    <strong>Success!</strong> 
+                    <?php
+                    if ($_GET['msg'] == 'user_deleted')
+                        echo "The user account has been permanently removed.";
+                    if ($_GET['msg'] == 'movie_deleted')
+                        echo "The movie listing has been deleted from the database.";
+                    ?>
+                </div>
+            <?php endif; ?>
 
+            <?php if (isset($_GET['error'])): ?>
+                <div class="alert error-alert">
+                    <strong>Error:</strong> 
+                    <?php
+                    if ($_GET['error'] == 'self_delete') {
+                        echo "Security violation: You cannot delete your own admin account.";
+                    }
+                    if ($_GET['error'] == 'delete_failed') {
+                        echo "Database error: Could not remove record. Check foreign key constraints.";
+                    }
+                    if ($_GET['error'] == 'unauthorized') {
+                        echo "Access denied: You do not have permission to perform this action.";
+                    }
+                    ?>
+                </div>
+<?php endif; ?>
             <section class="admin-section">
                 <h2>System Reports</h2>
                 <br>
@@ -81,10 +133,10 @@ $admin_data = mysqli_fetch_assoc($result);
                                 <td><?php echo htmlspecialchars($movie['title']); ?></td>
                                 <td><?php echo htmlspecialchars($movie['username']); ?></td>
                                 <td>
-                                    <button class="remove-btn" onclick="deleteContent(<?php echo $movie['movie_id']; ?>)">Remove</button>
+                                    <button class="remove-btn" onclick="confirmDelete(<?php echo $movie['movie_id']; ?>, 'dashboard')">Remove</button>
                                 </td>
                             </tr>
-                        <?php endwhile; ?>
+<?php endwhile; ?>
                     </tbody>
                 </table>
             </section>
@@ -95,9 +147,9 @@ $admin_data = mysqli_fetch_assoc($result);
         </footer>
 
         <script>
-            function deleteContent(id) {
-                if (confirm("Are you sure you want to remove this content? A system message will be shown to the creator.")) {
-                    // AJAX call to a script like ../scripts_php/admin_remove.php
+            function confirmDelete(id, source) {
+                if (confirm("Are you sure you want to remove this content? This action cannot be undone.")) {
+                    window.location.href = "delete_movie.php?id=" + id + "&from=" + source;
                 }
             }
         </script>

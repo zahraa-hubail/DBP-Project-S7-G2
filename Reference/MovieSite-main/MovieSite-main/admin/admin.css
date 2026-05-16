@@ -155,3 +155,134 @@
 .edit-btn:hover { background-color: #0056b3; }
 .delete-btn:hover { background-color: #c82333; }
 
+/* Container for the reports grid */
+.report-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    padding: 20px;
+}
+
+/* Individual Report Cards */
+.report-card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 25px;
+    color: #333333;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    border-top: 5px solid #00adff;
+}
+
+.report-card h2 {
+    margin-top: 0;
+    color: #152232;
+    font-size: 1.4rem;
+    border-bottom: 1px solid #eeeeee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+/* Forms inside reports */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.report-card input[type="date"], 
+.report-card select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-right: 5px;
+    margin-bottom: 10px;
+}
+
+/* Styled Table for Reports */
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.report-table th {
+    background-color: #152232;
+    color: #ffffff;
+    text-align: left;
+    padding: 12px 10px;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.report-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.9rem;
+}
+
+.report-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Action Buttons */
+.admin-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+    background: #152232;
+    color: white;
+}
+
+.admin-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* Print Specifics: Hide UI during PDF save */
+@media print {
+    .no-print, header, nav, footer {
+        display: none !important;
+    }
+}
+/* Alert Notification Styles */
+.alert {
+    padding: 15px;
+    margin: 20px auto;
+    width: 90%;
+    border-radius: 5px;
+    font-size: 14px;
+    text-align: center;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+.success-alert {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+.success-alert strong {
+    color: #155724; 
+}
+
+.error-alert {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.error-alert strong {
+    color: #721c24; 
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
