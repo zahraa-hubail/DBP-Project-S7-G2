@@ -74,6 +74,8 @@ $release_year = intval($_POST['release_year']);
 
 $status = trim($_POST['status']);
 
+$genre_id = intval($_POST['genre_id']);
+
 /*
 --------------------------------------------------
 Generate unique movie ID
@@ -131,76 +133,71 @@ if(!$stmt->execute()) {
 
 /*
 --------------------------------------------------
-Handle poster image upload
+Insert movie genre into junction table
 --------------------------------------------------
 */
 
-if (
-    isset($_FILES['poster'])
-    && $_FILES['poster']['error'] == 0
-) {
+$genre_query = "
+INSERT INTO dbProj_movie_genres
+(
+    genre_id,
+    movie_id
+)
+VALUES
+(
+    ?,
+    ?
+)
+";
 
-    $tmp_name =
-        $_FILES['poster']['tmp_name'];
+$genre_stmt = $con->prepare($genre_query);
 
-    $original_name =
-        basename($_FILES['poster']['name']);
+$genre_stmt->bind_param(
+    "ii",
+    $genre_id,
+    $movie_id
+);
 
-    $file_name =
-        time() . "_" . $original_name;
+$genre_stmt->execute();
 
-    $upload_path =
-        "../uploads/" . $file_name;
+/*
+--------------------------------------------------
+Assign hardcoded movie poster
+--------------------------------------------------
+*/
 
-    /*
-    ----------------------------------------------
-    Attempt image upload
-    ----------------------------------------------
-    */
+$file_url = "movies_images/Narnia.jpg";
 
-    if(
-        @move_uploaded_file(
-            $tmp_name,
-            $upload_path
-        )
-    ) {
+/*
+--------------------------------------------------
+Save movie poster into media table
+--------------------------------------------------
+*/
 
-        $file_url =
-            "uploads/" . $file_name;
+$media_query = "
+INSERT INTO dbProj_media
+(
+    movie_id,
+    media_type,
+    file_url
+)
+VALUES
+(
+    ?,
+    'image',
+    ?
+)
+";
 
-        /*
-        ----------------------------------------------
-        Store uploaded poster information
-        ----------------------------------------------
-        */
+$media_stmt = $con->prepare($media_query);
 
-        $media_query = "
-        INSERT INTO dbProj_media
-        (
-            movie_id,
-            media_type,
-            file_url
-        )
-        VALUES
-        (
-            ?,
-            'poster',
-            ?
-        )
-        ";
+$media_stmt->bind_param(
+    "is",
+    $movie_id,
+    $file_url
+);
 
-        $media_stmt =
-            $con->prepare($media_query);
-
-        $media_stmt->bind_param(
-            "is",
-            $movie_id,
-            $file_url
-        );
-
-        $media_stmt->execute();
-    }
-}
+$media_stmt->execute();
 
 /*
 --------------------------------------------------

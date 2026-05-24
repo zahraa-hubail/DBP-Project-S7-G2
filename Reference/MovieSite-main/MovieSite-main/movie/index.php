@@ -1,5 +1,5 @@
 <?php
-
+date_default_timezone_set('Europe/Bucharest');
 /*
 --------------------------------------------------
 Enable error reporting for debugging
@@ -23,7 +23,7 @@ Create human readable review timestamps
 
 function time_elapsed_string($datetime)
 {
-    date_default_timezone_set('Europe/Bucharest');
+    
 
     $now = new DateTime;
     $ago = new DateTime($datetime);
@@ -293,25 +293,87 @@ $total_reviews = $row_reviews_count['total_reviews'];
 </div>
 
 <?php } ?>
+    <div class="container">
 
-<?php if (isset($_GET['success']) && $_GET['success'] == 'review_deleted') { ?>
+<?php
 
-<div class="success-message delete-message">
-    Review deleted successfully!
-</div>
+/*
+--------------------------------------------------
+Display TMDB movie poster
+--------------------------------------------------
+*/
 
-<?php } ?>
-    
-<div class="container">
+if (
+    !$is_custom_movie &&
+    !empty($result['poster_path'])
+) {
 
-<?php if (!$is_custom_movie && !empty($result['poster_path'])) { ?>
+?>
 
 <img
 src="https://image.tmdb.org/t/p/w500<?php echo $result['poster_path']; ?>"
 class="movieimg"
 >
 
-<?php } else { ?>
+<?php
+
+}
+
+/*
+--------------------------------------------------
+Display creator uploaded movie poster
+--------------------------------------------------
+*/
+
+elseif ($is_custom_movie) {
+
+    $media_query = "
+    SELECT file_url
+    FROM dbProj_media
+    WHERE movie_id = ?
+    LIMIT 1
+    ";
+
+    $media_stmt = $con->prepare($media_query);
+
+    $media_stmt->bind_param(
+        "i",
+        $movie_id
+    );
+
+    $media_stmt->execute();
+
+    $media_result =
+        $media_stmt->get_result();
+
+    $media =
+        $media_result->fetch_assoc();
+
+    $poster =
+        $media
+        ? "../" . $media['file_url']
+        : "../movies_images/no_image.jpg";
+
+?>
+
+<img
+src="<?php echo $poster; ?>"
+class="movieimg"
+>
+
+<?php
+
+}
+
+/*
+--------------------------------------------------
+Fallback image
+--------------------------------------------------
+*/
+
+else {
+
+?>
 
 <img
 src="../movies_images/no_image.jpg"
@@ -382,10 +444,11 @@ Official TMDB Score:
 
 </div>
 
-</div>
+
+<!-- END MOVIE CONTAINER -->
 
 <!-- REVIEW FORM -->
-
+</div>
 <form
 id="reviewForm"
 action="../scripts_php/add_review.php"

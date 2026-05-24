@@ -2,6 +2,16 @@
 
 /*
 ========================================
+DATABASE CONNECTION
+========================================
+*/
+
+include("../../database/DBconn.php");
+
+$con = getConnection();
+
+/*
+========================================
 TMDB API CONFIGURATION
 ========================================
 */
@@ -35,22 +45,14 @@ $genres_data = json_decode(
 
 <head>
 
-    <!-- ==========================================
-         Page Metadata
-    =========================================== -->
+<meta charset="UTF-8">
 
-    <meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+<title>Browse Categories</title>
 
-    <title>Browse Categories</title>
-
-    <!-- ==========================================
-         Category Page Styling
-    =========================================== -->
-
-    <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css">
 
 </head>
 
@@ -62,94 +64,82 @@ $genres_data = json_decode(
 
 <header>
 
-    <div class="logo">
+<div class="logo">
 
-        <a href="../../">
+<a href="../../">
 
-            <img
-                src="../../logo.png"
-                alt="Movies"
-            />
+<img
+src="../../logo.png"
+alt="Movies"
+/>
 
-        </a>
+</a>
 
-    </div>
+</div>
 
-    <nav>
+<nav>
 
-        <ul>
+<ul>
 
-            <!-- ==========================================
-                 Search Dropdown Menu
-            =========================================== -->
+<li class="dropdown">
 
-            <li class="dropdown">
+<a href="../">
 
-                <a href="../">
+Search
 
-                    Search
+</a>
 
-                </a>
+<div class="dropdown-content">
 
-                <div class="dropdown-content">
+<a href="./">
 
-                    <a href="./">
+Browse Categories
 
-                        Browse Categories
+</a>
 
-                    </a>
+</div>
 
-                </div>
+</li>
 
-            </li>
+<li>
 
-            <!-- ==========================================
-                 Account Navigation
-            =========================================== -->
+<a href="../../account/">
 
-            <li>
+Account
 
-                <a href="../../account/">
+</a>
 
-                    Account
+</li>
 
-                </a>
+<li class="dropdown">
 
-            </li>
+<a href="../../about/">
 
-            <!-- ==========================================
-                 About Dropdown Menu
-            =========================================== -->
+About
 
-            <li class="dropdown">
+</a>
 
-                <a href="../../about/">
+<div class="dropdown-content">
 
-                    About
+<a href="../../about/">
 
-                </a>
+About Us
 
-                <div class="dropdown-content">
+</a>
 
-                    <a href="../../about/">
+<a href="../../about/movies.html">
 
-                        About Us
+About Movies
 
-                    </a>
+</a>
 
-                    <a href="../../about/movies.html">
+</div>
 
-                        About Movies
+</li>
 
-                    </a>
+</ul>
 
-                </div>
-
-            </li>
-
-        </ul>
-
-    </nav>
+</nav>
 
 </header>
 
@@ -159,226 +149,310 @@ $genres_data = json_decode(
 
 <main>
 
-    <!-- ==========================================
-         Page Title
-    =========================================== -->
+<h1 class="page-title">
 
-    <h1 class="page-title">
+Browse Movie Categories
 
-        Browse Movie Categories
+</h1>
 
-    </h1>
+<!-- ==========================================
+     Genre Selection Form
+=========================================== -->
 
-    <!-- ==========================================
-         Genre Selection Form
-    =========================================== -->
+<form class="genre-form"
+method="GET">
 
-    <form class="genre-form"
-          method="GET">
+<select
+name="genre"
+required
+>
 
-        <select name="genre"
-                required>
+<option value="">
 
-            <option value="">
+Select Genre
 
-                Select Genre
+</option>
 
-            </option>
+<?php
 
-            <?php
+foreach ($genres_data['genres'] as $genre) {
 
-            /*
-            ------------------------------------------
-            Display available genres
-            ------------------------------------------
-            */
+?>
 
-            foreach ($genres_data['genres'] as $genre) {
+<option value="<?php echo $genre['id']; ?>">
 
-                echo '<option value="' . $genre['id'] . '">';
+<?php echo htmlspecialchars($genre['name']); ?>
 
-                echo $genre['name'];
+</option>
 
-                echo '</option>';
-            }
+<?php } ?>
 
-            ?>
+</select>
 
-        </select>
+<button type="submit">
 
-        <button type="submit">
+Browse
 
-            Browse
+</button>
 
-        </button>
+</form>
 
-    </form>
+<?php
 
-    <?php
+/*
+========================================
+FETCH MOVIES BY GENRE
+========================================
+*/
 
-    /*
-    ========================================
-    FETCH MOVIES BY GENRE
-    ========================================
-    */
+if (isset($_GET['genre'])) {
 
-    if (isset($_GET['genre'])) {
+$selected_genre = $_GET['genre'];
 
-        $selected_genre = $_GET['genre'];
+/*
+------------------------------------------
+Build TMDB discover URL
+------------------------------------------
+*/
 
-        /*
-        ------------------------------------------
-        Build discover movies URL
-        ------------------------------------------
-        */
+$discover_url =
+"$discover_endpoint?api_key=$api_key&with_genres=$selected_genre&sort_by=popularity.desc";
 
-        $discover_url =
-            "$discover_endpoint?api_key=$api_key&with_genres=$selected_genre&sort_by=popularity.desc";
+/*
+------------------------------------------
+Fetch movies from TMDB
+------------------------------------------
+*/
 
-        /*
-        ------------------------------------------
-        Fetch genre movies from TMDB
-        ------------------------------------------
-        */
+$discover_json = file_get_contents(
+$discover_url
+);
 
-        $discover_json = file_get_contents(
-            $discover_url
-        );
+$discover_data = json_decode(
+$discover_json,
+true
+);
 
-        $discover_data = json_decode(
-            $discover_json,
-            true
-        );
+/*
+------------------------------------------
+Retrieve selected genre name
+------------------------------------------
+*/
 
-        /*
-        ------------------------------------------
-        Retrieve selected genre name
-        ------------------------------------------
-        */
+$genre_name =
+array_column(
+$genres_data['genres'],
+'name',
+'id'
+)[$selected_genre];
 
-        $genre_name =
-            array_column(
-                $genres_data['genres'],
-                'name',
-                'id'
-            )[$selected_genre];
+?>
 
-        ?>
+<!-- ==========================================
+     TMDB MOVIES
+=========================================== -->
 
-        <!-- ==========================================
-             Results Title
-        =========================================== -->
+<h2 class="results-title">
 
-        <h2 class="results-title">
+Top
+<?php echo htmlspecialchars($genre_name); ?>
+Movies
 
-            Top
-            <?php echo htmlspecialchars($genre_name); ?>
-            Movies
+</h2>
 
-        </h2>
+<div class="movie-list">
 
-        <!-- ==========================================
-             Movie Cards Container
-        =========================================== -->
+<?php
 
-        <div class="movie-list">
+foreach ($discover_data['results'] as $movie) {
 
-            <?php
+?>
 
-            /*
-            ------------------------------------------
-            Display movies
-            ------------------------------------------
-            */
+<a
+class="movie-card"
+href="../../movie/?id=<?php echo $movie['id']; ?>"
+>
 
-            foreach ($discover_data['results'] as $movie) {
+<?php
 
-                ?>
+if ($movie['poster_path']) {
 
-                <a class="movie-card"
-                   href="../../movie/?id=<?php echo $movie['id']; ?>">
+?>
 
-                    <!-- ==========================================
-                         Movie Poster
-                    =========================================== -->
+<img
+class="movie-image"
+src="https://image.tmdb.org/t/p/w500<?php echo $movie['poster_path']; ?>"
+>
 
-                    <?php
+<?php
 
-                    if ($movie['poster_path']) {
+} else {
 
-                        ?>
+?>
 
-                        <img
-                            class="movie-image"
-                            src="https://image.tmdb.org/t/p/w500<?php echo $movie['poster_path']; ?>"
-                        >
+<img
+class="movie-image"
+src="../../movies_images/no_image.jpg"
+>
 
-                        <?php
+<?php } ?>
 
-                    } else {
+<div class="movie-info">
 
-                        ?>
+<h3>
 
-                        <img
-                            class="movie-image"
-                            src="../../movies_images/no_image.jpg"
-                        >
+<?php
+echo htmlspecialchars(
+$movie['title']
+);
+?>
 
-                        <?php
-                    }
+</h3>
 
-                    ?>
+<p>
 
-                    <!-- ==========================================
-                         Movie Information
-                    =========================================== -->
+Release:
+<?php echo $movie['release_date']; ?>
 
-                    <div class="movie-info">
+</p>
 
-                        <h3>
+<p>
 
-                            <?php
-                            echo htmlspecialchars(
-                                $movie['title']
-                            );
-                            ?>
+⭐
+<?php
+echo round(
+$movie['vote_average'],
+1
+);
+?>
 
-                        </h3>
+</p>
 
-                        <p>
+</div>
 
-                            Release:
-                            <?php echo $movie['release_date']; ?>
+</a>
 
-                        </p>
+<?php } ?>
 
-                        <p>
+</div>
 
-                            ⭐
-                            <?php
-                            echo round(
-                                $movie['vote_average'],
-                                1
-                            );
-                            ?>
+<!-- ==========================================
+     CREATOR UPLOADED MOVIES
+=========================================== -->
 
-                        </p>
+<h2 class="results-title">
 
-                    </div>
+Creator Uploaded <?php echo $genre_name; ?> Movies
 
-                </a>
+</h2>
 
-                <?php
-            }
+<div class="movie-list">
 
-            ?>
+<?php
 
-        </div>
+/*
+----------------------------------------------
+Retrieve creator uploaded movies
+----------------------------------------------
+*/
 
-        <?php
-    }
+$db_query = "
+SELECT m.*
+FROM dbProj_movies m
 
-    ?>
+JOIN dbProj_movie_genres mg
+ON m.movie_id = mg.movie_id
+
+WHERE mg.genre_id = ?
+";
+
+$db_stmt = $con->prepare($db_query);
+
+$db_stmt->bind_param(
+"i",
+$selected_genre
+);
+
+$db_stmt->execute();
+
+$db_result = $db_stmt->get_result();
+
+while($movie = $db_result->fetch_assoc()) {
+
+$movie_id = $movie['movie_id'];
+
+/*
+----------------------------------------------
+Retrieve movie poster
+----------------------------------------------
+*/
+
+$media_query = "
+SELECT file_url
+FROM dbProj_media
+WHERE movie_id = ?
+LIMIT 1
+";
+
+$media_stmt = $con->prepare($media_query);
+
+$media_stmt->bind_param(
+"i",
+$movie_id
+);
+
+$media_stmt->execute();
+
+$media_result = $media_stmt->get_result();
+
+$media = $media_result->fetch_assoc();
+
+$poster = $media
+? "../../" . $media['file_url']
+: "../../movies_images/no_image.jpg";
+
+?>
+
+<a
+class="movie-card"
+href="../../movie/?custom_id=<?php echo $movie_id; ?>"
+>
+
+<img
+class="movie-image"
+src="<?php echo $poster; ?>"
+>
+
+<div class="movie-info">
+
+<h3>
+
+<?php echo htmlspecialchars($movie['title']); ?>
+
+</h3>
+
+<p>
+
+Release:
+<?php echo $movie['release_year']; ?>
+
+</p>
+
+<p class="creator-badge">
+
+Creator Upload
+
+</p>
+
+</div>
+
+</a>
+
+<?php } ?>
+
+</div>
+
+<?php } ?>
 
 </main>
 
@@ -388,12 +462,12 @@ $genres_data = json_decode(
 
 <footer>
 
-    <p>
+<p>
 
-        &copy; 2026 MovieSite.
-        All rights reserved.
+&copy; 2026 MovieSite.
+All rights reserved.
 
-    </p>
+</p>
 
 </footer>
 

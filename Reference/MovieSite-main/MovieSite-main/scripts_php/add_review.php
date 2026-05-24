@@ -142,21 +142,26 @@ if ($check_result->num_rows > 0) {
 } else {
 
     /*
-    ----------------------------------------------
-    Insert new review comment
-    ----------------------------------------------
-    */
+----------------------------------------------
+Insert new review comment
+----------------------------------------------
+*/
 
-    $query_comment = "
-    INSERT INTO dbProj_comments
-    (
-        movie_id,
-        user_id,
-        body,
-        is_removed
-    )
-    VALUES (?, ?, ?, 0)
-    ";
+$query_comment = "
+INSERT INTO dbProj_comments
+(
+    movie_id,
+    user_id,
+    body,
+    is_removed,
+    created_at
+)
+VALUES
+(
+    ?, ?, ?, 0,
+    DATE_ADD(NOW(), INTERVAL 3 HOUR)
+)
+";
 
     $stmt_comment = $con->prepare($query_comment);
 

@@ -161,10 +161,20 @@ DATABASE MOVIE SEARCH
 $query = "
 SELECT
     m.*,
-    AVG(r.stars) AS avg_rating
+    AVG(r.stars) AS avg_rating,
+    g.name AS genre_name
+
 FROM dbProj_movies m
+
 LEFT JOIN dbProj_ratings r
 ON m.movie_id = r.movie_id
+
+LEFT JOIN dbProj_movie_genres mg
+ON m.movie_id = mg.movie_id
+
+LEFT JOIN dbProj_genres g
+ON mg.genre_id = g.genre_id
+
 WHERE
 (
     title LIKE ?
@@ -295,75 +305,72 @@ while ($movie = $result->fetch_assoc()) {
 <a class="movie"
    href="../movie/?custom_id=<?php echo $movie['movie_id']; ?>">
 
-        <!-- ==========================================
-             Default Poster
-        =========================================== -->
+    <img
+        src="../movies_images/Narnia.jpg"
+        class="image"
+    >
 
-        <img
-            src="../movies_images/no_image.jpg"
-            class="image"
-        >
+    <div class="details">
 
-        <!-- ==========================================
-             Movie Details
-        =========================================== -->
+        <h2>
 
-        <div class="details">
+            <?php
+            echo htmlspecialchars($movie['title']);
+            ?>
 
-            <h2>
+        </h2>
 
-                <?php
-                echo htmlspecialchars($movie['title']);
-                ?>
+        <p>
 
-            </h2>
+            Director:
+            <?php
+            echo htmlspecialchars($movie['director']);
+            ?>
 
-            <p>
+        </p>
 
-                Director:
-                <?php
-                echo htmlspecialchars($movie['director']);
-                ?>
+        <p>
 
-            </p>
+            Release Year:
+            <?php
+            echo htmlspecialchars($movie['release_year']);
+            ?>
 
-            <p>
+        </p>
 
-                Release Year:
-                <?php
-                echo htmlspecialchars($movie['release_year']);
-                ?>
+        <p>
 
-            </p>
+            Genre:
+            <?php
+            echo htmlspecialchars($movie['genre_name']);
+            ?>
 
-            <p>
+        </p>
 
-                Rating:
-                ⭐
+        <p>
 
-                <?php
+            Rating:
+            ⭐
 
-                echo $movie['avg_rating']
-                    ? round($movie['avg_rating'], 1)
-                    : "No ratings";
+            <?php
 
-                ?>
+            echo $movie['avg_rating']
+                ? round($movie['avg_rating'], 1)
+                : "No ratings";
 
-            </p>
+            ?>
 
-            <!-- ==========================================
-                 Creator Upload Badge
-            =========================================== -->
+        </p>
 
-            <p class="creator-badge">
+        <p class="creator-badge">
 
-                Creator Upload
+            Creator Upload
 
-            </p>
+        </p>
 
-        </div>
+    </div>
 
-    </a>
+</a>
 
     <?php
 }

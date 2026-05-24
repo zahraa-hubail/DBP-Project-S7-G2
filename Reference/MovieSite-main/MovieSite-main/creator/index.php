@@ -171,6 +171,11 @@ if($_GET['success'] == "movie_updated") {
     echo "Movie updated successfully!";
 }
 
+if($_GET['success'] == "movie_deleted") {
+
+    echo "Movie deleted successfully!";
+}
+
 ?>
 
 </div>
@@ -185,14 +190,13 @@ if($_GET['success'] == "movie_updated") {
 
 <h2>
 
-Add Movie
+Add New Movie
 
 </h2>
 
 <form
 action="add_movie.php"
 method="POST"
-enctype="multipart/form-data"
 >
 
 <input
@@ -222,11 +226,60 @@ placeholder="Release Year"
 required
 >
 
-<select name="status">
+<!-- ==========================================
+     Genre Selection
+=========================================== -->
+
+<select
+name="genre_id"
+required
+>
+
+<option value="">
+
+Select Genre
+
+</option>
+
+<?php
+
+$genre_query = "
+SELECT *
+FROM dbProj_genres
+ORDER BY name ASC
+";
+
+$genre_result = mysqli_query(
+    $con,
+    $genre_query
+);
+
+while($genre = mysqli_fetch_assoc($genre_result)) {
+
+?>
+
+<option value="<?php echo $genre['genre_id']; ?>">
+
+<?php echo htmlspecialchars($genre['name']); ?>
+
+</option>
+
+<?php } ?>
+
+</select>
+
+<!-- ==========================================
+     Movie Status
+=========================================== -->
+
+<select
+name="status"
+required
+>
 
 <option value="published">
 
-Publish
+Published
 
 </option>
 
@@ -237,12 +290,6 @@ Draft
 </option>
 
 </select>
-
-<input
-type="file"
-name="poster"
-accept="image/*"
->
 
 <button type="submit">
 
@@ -279,7 +326,10 @@ ORDER BY created_at DESC
 
 $stmt_movies = $con->prepare($query_movies);
 
-$stmt_movies->bind_param("i", $creator_id);
+$stmt_movies->bind_param(
+    "i",
+    $creator_id
+);
 
 $stmt_movies->execute();
 
@@ -288,6 +338,12 @@ $result_movies = $stmt_movies->get_result();
 while($movie = $result_movies->fetch_assoc()) {
 
     $movie_id = $movie['movie_id'];
+
+    /*
+    ----------------------------------------------
+    Retrieve movie poster
+    ----------------------------------------------
+    */
 
     $media_query = "
     SELECT file_url
@@ -298,7 +354,10 @@ while($movie = $result_movies->fetch_assoc()) {
 
     $media_stmt = $con->prepare($media_query);
 
-    $media_stmt->bind_param("i", $movie_id);
+    $media_stmt->bind_param(
+        "i",
+        $movie_id
+    );
 
     $media_stmt->execute();
 

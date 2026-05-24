@@ -19,32 +19,43 @@ body {
 ========================================== */
 
 header {
+
     background-color: rgb(53, 87, 121);
+
     color: white;
 
     display: flex;
+
     justify-content: space-between;
+
     align-items: center;
 
     padding: 15px 30px;
 }
 
 .logo {
+
     height: 50px;
+
     width: auto;
 }
 
 nav ul {
+
     display: flex;
+
     list-style: none;
 }
 
 nav li {
+
     margin-left: 15px;
 }
 
 nav a {
+
     color: white;
+
     text-decoration: none;
 
     padding: 10px;
@@ -55,6 +66,7 @@ nav a {
 }
 
 nav a:hover {
+
     background-color: #090f24;
 }
 
@@ -63,10 +75,13 @@ nav a:hover {
 ========================================== */
 
 main {
+
     width: 100%;
 
     display: flex;
+
     flex-direction: column;
+
     align-items: center;
 
     padding: 30px;
@@ -77,6 +92,7 @@ main {
 ========================================== */
 
 .success-message {
+
     width: 90%;
 
     background: #4CAF50;
@@ -122,56 +138,83 @@ main {
 ========================================== */
 
 .container {
+
     width: 90%;
+
+    max-width: 1600px;
 
     background-color: rgb(53, 87, 121);
 
-    border-radius: 20px;
+    border-radius: 25px;
 
-    padding: 35px;
+    padding: 45px;
 
     display: flex;
 
-    gap: 40px;
+    align-items: flex-start;
+
+    gap: 50px;
 
     color: white;
 
     box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+
+    margin-top: 20px;
 }
+
+/* ==========================================
+   Movie Poster
+========================================== */
 
 .movieimg {
-    width: 300px;
 
-    height: auto;
+    width: 320px;
 
-    border-radius: 15px;
+    height: 480px;
 
     object-fit: cover;
+
+    border-radius: 20px;
+
+    flex-shrink: 0;
+
+    box-shadow: 0px 6px 18px rgba(0,0,0,0.25);
 }
 
+/* ==========================================
+   Movie Details
+========================================== */
+
 .detalii {
+
     flex: 1;
 
     display: flex;
+
     flex-direction: column;
 
     justify-content: flex-start;
 }
 
 .detalii h1 {
-    font-size: 52px;
 
-    margin-bottom: 25px;
+    font-size: 4.5rem;
+
+    line-height: 1.1;
+
+    margin-bottom: 30px;
 }
 
 .detalii h2 {
+
     margin-bottom: 15px;
 }
 
 .detalii h4 {
-    line-height: 1.6;
 
-    font-size: 20px;
+    line-height: 1.8;
+
+    font-size: 1.3rem;
 
     font-weight: 400;
 }
@@ -181,29 +224,36 @@ main {
 ========================================== */
 
 .rating {
+
     background-color: white;
 
     color: black;
 
-    width: fit-content;
+    width: 260px;
 
-    min-width: 220px;
+    padding: 25px;
 
-    padding: 20px 30px;
-
-    border-radius: 15px;
+    border-radius: 18px;
 
     text-align: center;
 
     box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+
+    margin-bottom: 35px;
 }
 
 .rating h2 {
+
     margin-bottom: 10px;
+
+    font-size: 2rem;
 }
 
 .rating h4 {
+
     color: #666;
+
+    font-size: 1.2rem;
 }
 
 /* ==========================================
@@ -211,6 +261,7 @@ main {
 ========================================== */
 
 #reviewForm {
+
     width: 70%;
 
     background: white;
@@ -225,10 +276,12 @@ main {
 }
 
 .review-input {
+
     margin-bottom: 20px;
 }
 
 .review-input .name {
+
     margin-bottom: 10px;
 
     color: #444;
@@ -237,6 +290,7 @@ main {
 }
 
 textarea {
+
     width: 100%;
 
     min-height: 180px;
@@ -257,6 +311,7 @@ textarea {
 ========================================== */
 
 .rating_form {
+
     margin: 25px 0;
 
     display: flex;
@@ -269,6 +324,7 @@ textarea {
 }
 
 .rating_form label:first-child {
+
     color: black;
 
     font-size: 22px;
@@ -277,16 +333,19 @@ textarea {
 }
 
 .stars {
+
     display: flex;
 
     flex-direction: row-reverse;
 }
 
 .stars input {
+
     display: none;
 }
 
 .stars label {
+
     font-size: 40px;
 
     color: #ccc;
@@ -298,10 +357,12 @@ textarea {
 
 .stars label:hover,
 .stars label:hover ~ label {
+
     color: #F5A624;
 }
 
 .stars input:checked ~ label {
+
     color: #F5A624;
 }
 
@@ -310,10 +371,12 @@ textarea {
 ========================================== */
 
 .submit-button {
+
     text-align: center;
 }
 
 input[type="submit"] {
+
     background-color: #F5A624;
 
     color: white;
@@ -332,6 +395,7 @@ input[type="submit"] {
 }
 
 input[type="submit"]:hover {
+
     background-color: #D4941E;
 }
 
@@ -340,18 +404,21 @@ input[type="submit"]:hover {
 ========================================== */
 
 .reviews {
+
     width: 70%;
 
     margin-top: 60px;
 }
 
 .reviews h2 {
+
     margin-bottom: 25px;
 
     font-size: 42px;
 }
 
 .review {
+
     background: white;
 
     border-radius: 20px;
@@ -364,6 +431,7 @@ input[type="submit"]:hover {
 }
 
 .review .name {
+
     font-size: 28px;
 
     color: #333;
@@ -372,6 +440,7 @@ input[type="submit"]:hover {
 }
 
 .linia-doi {
+
     display: flex;
 
     justify-content: space-between;
@@ -380,6 +449,7 @@ input[type="submit"]:hover {
 }
 
 .rating_mic {
+
     color: #F5A624;
 
     font-size: 24px;
@@ -388,6 +458,7 @@ input[type="submit"]:hover {
 }
 
 .date {
+
     margin-left: 15px;
 
     color: gray;
@@ -396,6 +467,7 @@ input[type="submit"]:hover {
 }
 
 .content {
+
     margin-top: 20px;
 
     font-size: 18px;
@@ -410,6 +482,7 @@ input[type="submit"]:hover {
 ========================================== */
 
 .dropdown-content {
+
     display: none;
 
     position: absolute;
@@ -424,12 +497,14 @@ input[type="submit"]:hover {
 }
 
 .dropdown-content a {
+
     display: block;
 
     padding: 12px 16px;
 }
 
 .dropdown:hover .dropdown-content {
+
     display: block;
 }
 
@@ -466,6 +541,7 @@ input[type="submit"]:hover {
 ========================================== */
 
 .creator-badge {
+
     background-color: rgb(53, 87, 121);
 
     color: white;
@@ -484,29 +560,44 @@ input[type="submit"]:hover {
 @media (max-width: 768px) {
 
     .container {
+
         flex-direction: column;
 
         align-items: center;
+
+        text-align: center;
     }
 
     .movieimg {
-        width: 220px;
+
+        width: 250px;
+
+        height: 380px;
     }
 
     .detalii {
+
         width: 100%;
     }
 
     .detalii h1 {
-        font-size: 38px;
+
+        font-size: 3rem;
     }
 
     #reviewForm,
     .reviews {
+
         width: 95%;
     }
 
     .rating_form {
+
         flex-direction: column;
+    }
+
+    .rating {
+
+        width: 100%;
     }
 }

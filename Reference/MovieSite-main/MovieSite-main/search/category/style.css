@@ -227,12 +227,15 @@ main{
 
 .results-title{
 
-    margin-bottom:30px;
+    margin-top:60px;
 
-    font-size:2rem;
+    margin-bottom:40px;
+
+    font-size:2.3rem;
 
     color:#222;
 }
+
 
 .movie-list{
 
