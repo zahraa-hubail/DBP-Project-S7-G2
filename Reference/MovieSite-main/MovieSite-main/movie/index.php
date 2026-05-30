@@ -287,7 +287,7 @@ Display creator uploaded movie poster
 --------------------------------------------------
 */
 elseif ($is_custom_movie) {
-    $media_query = "SELECT file_url FROM dbProj_media WHERE movie_id = ? LIMIT 1";
+    $media_query = "SELECT file_url FROM dbProj_media WHERE movie_id = ? AND media_type = 'image' LIMIT 1";
     $media_stmt = $con->prepare($media_query);
     $media_stmt->bind_param("i", $movie_id);
     $media_stmt->execute();
