@@ -58,7 +58,7 @@
                     header("Location: ../admin/dashboard.php");
                 } elseif ($user_data['role_id'] == 2) {
                     $_SESSION['role'] = 'creator';
-                    header("Location: ../creator/panel.php");
+                    header("Location: ../creator/index.php");
                 } else {
                     $_SESSION['role'] = 'viewer';
                     header("Location: ../account/");

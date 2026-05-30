@@ -306,7 +306,7 @@
 
     <p>
 
-        &copy; 2026 MovieSite
+        &copy; 2026 The Binge Box
 
     </p>
 

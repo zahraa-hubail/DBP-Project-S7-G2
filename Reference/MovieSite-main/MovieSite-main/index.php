@@ -5,7 +5,7 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Movie Shop Website</title>
+        <title>The Binge Box</title>
         <link rel="stylesheet" href="style.css" />
     </head>
 
@@ -36,7 +36,7 @@
 
         <main>
             <div class="welcome">
-                <text class="welcome-title">Welcome to MovieSite!</text>
+                <text class="welcome-title">Welcome to The Binge Box!</text>
                 <span style="font-size:36px">📽️</span>
             </div>
             <section class="movies">
@@ -68,7 +68,7 @@
         </main>
 
         <footer>
-            <p>&copy; 2023 MovieSite. All rights reserved.</p>
+            <p>&copy; 2026 The Binge Box. All rights reserved.</p>
         </footer>
         <script>
             const title = document.querySelector('.welcome-title');

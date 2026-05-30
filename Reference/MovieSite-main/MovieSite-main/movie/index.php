@@ -23,8 +23,6 @@ Create human readable review timestamps
 
 function time_elapsed_string($datetime)
 {
-    
-
     $now = new DateTime;
     $ago = new DateTime($datetime);
 
@@ -53,7 +51,8 @@ if (isset($_GET['id'])) {
 
     $url = "https://api.themoviedb.org/3/movie/$movie_id?api_key=$api_key&language=en-US";
 
-    $response = file_get_contents($url);
+    // API Protection rule: adding @ suppresses raw runtime network dumps if a 404 occurs
+    $response = @file_get_contents($url);
 
     $result = json_decode($response, true);
 
@@ -243,287 +242,151 @@ $total_reviews = $row_reviews_count['total_reviews'];
 ?>
 
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>
-<?php echo htmlspecialchars($result['title']); ?>
-</title>
-
-<link rel="stylesheet" href="style.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo htmlspecialchars($result['title']); ?></title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <header>
-
-<a href="../">
-<img class="logo" src="../logo.png">
-</a>
-
-<nav>
-
-<ul>
-
-<li><a href="../search/">Search</a></li>
-
-<li><a href="../account/">Account</a></li>
-
-<li><a href="../about/">About</a></li>
-
-</ul>
-
-</nav>
-
+    <a href="../">
+        <img class="logo" src="../logo.png">
+    </a>
+    <nav>
+        <ul>
+            <li><a href="../search/">Search</a></li>
+            <li><a href="../account/">Account</a></li>
+            <li><a href="../about/">About</a></li>
+        </ul>
+    </nav>
 </header>
 
 <main>
 
 <?php if (isset($_GET['success']) && $_GET['success'] == 'review_added') { ?>
-
-<div class="success-message">
+<div class="success-message alert-container">
     Review added successfully!
 </div>
-
 <?php } ?>
+
+<?php if (isset($_GET['status']) && $_GET['status'] == 'deleted') { ?>
+<div class="success-message deletion-alert alert-container">
+    Review deleted successfully!
+</div>
+<?php } ?>
+
     <div class="container">
 
 <?php
-
 /*
 --------------------------------------------------
 Display TMDB movie poster
 --------------------------------------------------
 */
-
-if (
-    !$is_custom_movie &&
-    !empty($result['poster_path'])
-) {
-
+if (!$is_custom_movie && !empty($result['poster_path'])) {
 ?>
-
-<img
-src="https://image.tmdb.org/t/p/w500<?php echo $result['poster_path']; ?>"
-class="movieimg"
->
-
+<img src="https://image.tmdb.org/t/p/w500<?php echo $result['poster_path']; ?>" class="movieimg">
 <?php
-
 }
-
 /*
 --------------------------------------------------
 Display creator uploaded movie poster
 --------------------------------------------------
 */
-
 elseif ($is_custom_movie) {
-
-    $media_query = "
-    SELECT file_url
-    FROM dbProj_media
-    WHERE movie_id = ?
-    LIMIT 1
-    ";
-
+    $media_query = "SELECT file_url FROM dbProj_media WHERE movie_id = ? LIMIT 1";
     $media_stmt = $con->prepare($media_query);
-
-    $media_stmt->bind_param(
-        "i",
-        $movie_id
-    );
-
+    $media_stmt->bind_param("i", $movie_id);
     $media_stmt->execute();
-
-    $media_result =
-        $media_stmt->get_result();
-
-    $media =
-        $media_result->fetch_assoc();
-
-    $poster =
-        $media
-        ? "../" . $media['file_url']
-        : "../movies_images/no_image.jpg";
-
+    $media_result = $media_stmt->get_result();
+    $media = $media_result->fetch_assoc();
+    $poster = $media ? "../" . $media['file_url'] : "../movies_images/no_image.jpg";
 ?>
-
-<img
-src="<?php echo $poster; ?>"
-class="movieimg"
->
-
+<img src="<?php echo $poster; ?>" class="movieimg">
 <?php
-
 }
-
 /*
 --------------------------------------------------
 Fallback image
 --------------------------------------------------
 */
-
 else {
-
 ?>
-
-<img
-src="../movies_images/no_image.jpg"
-class="movieimg"
->
-
+<img src="../movies_images/no_image.jpg" class="movieimg">
 <?php } ?>
 
 <div class="detalii">
+    <h1><?php echo htmlspecialchars($result['title']); ?></h1>
+    <div class="rating">
+        <h2><?php echo $average_rating; ?> ⭐</h2>
+        <h4><?php echo $total_reviews; ?> reviews</h4>
+    </div>
+    <br><br>
+    <h2>Description</h2>
+    <br>
+    <h4><?php echo htmlspecialchars($result['overview']); ?></h4>
+    <br><br>
+    <h2>Release Date: <span style="font-weight:400"><?php echo htmlspecialchars($result['release_date']); ?></span></h2>
 
-<h1>
-<?php echo htmlspecialchars($result['title']); ?>
-</h1>
-
-<div class="rating">
-
-<h2>
-<?php echo $average_rating; ?> ⭐
-</h2>
-
-<h4>
-<?php echo $total_reviews; ?> reviews
-</h4>
-
-</div>
-
-<br><br>
-
-<h2>Description</h2>
-
-<br>
-
-<h4>
-<?php echo htmlspecialchars($result['overview']); ?>
-</h4>
-
-<br><br>
-
-<h2>
-
-Release Date:
-
-<span style="font-weight:400">
-
-<?php echo htmlspecialchars($result['release_date']); ?>
-
-</span>
-
-</h2>
-
-<?php if (!$is_custom_movie) { ?>
-
-<br><br>
-
-<h2>
-
-Official TMDB Score:
-
-<span style="font-weight:400">
-
-<?php echo $result['vote_average']; ?>
-
-</span>
-
-</h2>
-
-<?php } ?>
-
-</div>
-
-
-<!-- END MOVIE CONTAINER -->
-
-<!-- REVIEW FORM -->
-</div>
-<form
-id="reviewForm"
-action="../scripts_php/add_review.php"
-method="post"
->
-
-<input
-type="hidden"
-name="movie_id"
-value="<?php echo $movie_id; ?>"
->
-
-<div class="review-input">
-
-<h3 class="name">
-
-<?php
-
-echo isset($_SESSION['username'])
-? $_SESSION['username']
-: "Guest";
-
-?>
-
-</h3>
-
-<textarea
-name="review_text"
-placeholder="Write your review"
-required
-></textarea>
-
-</div>
-
-<div class="rating_form">
-
-<label>Rating:</label>
-
-<div class="stars">
-
-<input type="radio" name="rating" value="5" id="star5" required>
-<label for="star5">★</label>
-
-<input type="radio" name="rating" value="4" id="star4">
-<label for="star4">★</label>
-
-<input type="radio" name="rating" value="3" id="star3">
-<label for="star3">★</label>
-
-<input type="radio" name="rating" value="2" id="star2">
-<label for="star2">★</label>
-
-<input type="radio" name="rating" value="1" id="star1">
-<label for="star1">★</label>
-
+    <?php if (!$is_custom_movie) { ?>
+    <br><br>
+    <h2>Official TMDB Score: <span style="font-weight:400"><?php echo $result['vote_average']; ?></span></h2>
+    <?php } ?>
 </div>
 
 </div>
 
-<div class="submit-button">
+<form id="reviewForm" action="../scripts_php/add_review.php" method="post" onsubmit="return checkUserSession()">
+    <input type="hidden" name="movie_id" value="<?php echo $movie_id; ?>">
+    <div class="review-input">
+        <h3 class="name">
+            <?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : "Guest"; ?>
+        </h3>
+        <textarea name="review_text" placeholder="Write your review" required></textarea>
+    </div>
 
-<input type="submit" value="Submit Review">
+    <div class="rating_form">
+        <label>Rating:</label>
+        <div class="stars">
+            <input type="radio" name="rating" value="5" id="star5" required>
+            <label for="star5">★</label>
+            <input type="radio" name="rating" value="4" id="star4">
+            <label for="star4">★</label>
+            <input type="radio" name="rating" value="3" id="star3">
+            <label for="star3">★</label>
+            <input type="radio" name="rating" value="2" id="star2">
+            <label for="star2">★</label>
+            <input type="radio" name="rating" value="1" id="star1">
+            <label for="star1">★</label>
+        </div>
+    </div>
 
-</div>
-
+    <div class="submit-button">
+        <input type="submit" value="Submit Review">
+    </div>
 </form>
 
-<?php
+<script>
+function checkUserSession() {
+    var isLoggedIn = <?php echo isset($_SESSION['id']) ? 'true' : 'false'; ?>;
+    if (!isLoggedIn) {
+        alert("⚠️ Access Denied: You must log in to your account before posting a review.");
+        window.location.href = "../account/index.php";
+        return false;
+    }
+    return true;
+}
+</script>
 
+<?php
 /*
 =========================================
 GET REVIEWS
 =========================================
 */
-
 $query_reviews = "
 SELECT
     c.comment_id,
@@ -532,27 +395,15 @@ SELECT
     c.created_at,
     r.stars,
     u.username
-
 FROM dbProj_comments c
-
-LEFT JOIN dbProj_ratings r
-ON c.user_id = r.user_id
-AND c.movie_id = r.movie_id
-
-LEFT JOIN dbProj_users u
-ON c.user_id = u.user_id
-
+LEFT JOIN dbProj_ratings r ON c.user_id = r.user_id AND c.movie_id = r.movie_id
+LEFT JOIN dbProj_users u ON c.user_id = u.user_id
 WHERE c.movie_id = ?
-
-ORDER BY c.created_at DESC
-";
+ORDER BY c.created_at DESC";
 
 $stmt_reviews = $con->prepare($query_reviews);
-
 $stmt_reviews->bind_param("i", $movie_id);
-
 $stmt_reviews->execute();
-
 $result_reviews = $stmt_reviews->get_result();
 
 /*
@@ -560,113 +411,66 @@ $result_reviews = $stmt_reviews->get_result();
 SHOW REVIEWS
 =========================================
 */
-
 if ($result_reviews->num_rows > 0) {
-
     echo "<div class='reviews'>";
-
     echo "<h2>Reviews</h2>";
 
     while ($row = $result_reviews->fetch_assoc()) {
-
         echo "<div class='review'>";
-
-        /*
-        =========================================
-        HEADER
-        =========================================
-        */
-
         echo "<div class='linia-doi'>";
-
         echo "<div>";
-
-        echo "<h3 class='name'>";
-        echo htmlspecialchars($row['username']);
-        echo "</h3>";
-
+        echo "<h3 class='name'>" . htmlspecialchars($row['username']) . "</h3>";
         echo "<div>";
-
-        echo "<span class='rating_mic'>";
-        echo str_repeat('★', intval($row['stars']));
-        echo "</span>";
-
-        echo "<span class='date'>";
-        echo time_elapsed_string($row['created_at']);
-        echo "</span>";
-
+        echo "<span class='rating_mic'>" . str_repeat('★', intval($row['stars'])) . "</span>";
+        echo "<span class='date'>" . time_elapsed_string($row['created_at']) . "</span>";
         echo "</div>";
-
         echo "</div>";
 
         /*
         =========================================
-        DELETE BUTTON
+        DELETE BUTTON (Owner OR Admin Authorization Check)
         =========================================
         */
-
-        if (
-            isset($_SESSION['id']) &&
-            $_SESSION['id'] == $row['user_id']
-        ) {
-
-            echo "<form
-                    action='../scripts_php/delete_review.php'
-                    method='POST'
-                    style='display:inline;'>";
-
-            echo "<input
-                    type='hidden'
-                    name='review_id'
-                    value='" . $row['comment_id'] . "'>";
-
-            echo "<input
-                    type='hidden'
-                    name='movie_id'
-                    value='" . $movie_id . "'>";
-
-            echo "<button
-                    type='submit'
-                    class='delete-review-btn'
-                    onclick='return confirm(\"Delete this review?\")'>
-                    Delete
-                  </button>";
-
+        if (isset($_SESSION['id']) && ($_SESSION['id'] == $row['user_id'] || (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'))) {
+            echo "<form action='../scripts_php/delete_review.php' method='POST' style='display:inline;'>";
+            echo "<input type='hidden' name='review_id' value='" . $row['comment_id'] . "'>";
+            echo "<input type='hidden' name='movie_id' value='" . $movie_id . "'>";
+            echo "<button type='submit' class='delete-review-btn' onclick='return confirm(\"Are you sure you want to delete this review? This action cannot be undone.\")'>Delete</button>";
             echo "</form>";
         }
 
         echo "</div>";
-
-        /*
-        =========================================
-        REVIEW TEXT
-        =========================================
-        */
-
-        echo "<p class='content'>";
-        echo htmlspecialchars($row['body']);
-        echo "</p>";
-
+        echo "<p class='content'>" . htmlspecialchars($row['body']) . "</p>";
         echo "</div>";
     }
-
     echo "</div>";
-
 } else {
-
     echo "<div class='reviews'>";
-
     echo "<h2>Reviews</h2>";
-
     echo "<p>No reviews yet.</p>";
-
     echo "</div>";
 }
-
 ?>
 
 </main>
 
-</body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+<script>
+$(document).ready(function() {
+    // Targets alert elements across the page template cleanly
+    var $alertContainer = $('.deletion-alert, .success-message, .alert-container');
+    
+    if ($alertContainer.length > 0) {
+        // Wait 4000 milliseconds (4 seconds), then smoothly slide up and fade out
+        setTimeout(function() {
+            $alertContainer.fadeTo(500, 0).slideUp(500, function(){
+                $(this).remove(); 
+            });
+        }, 2000);
+    }
+});
+</script>
+
+</body>
 </html>

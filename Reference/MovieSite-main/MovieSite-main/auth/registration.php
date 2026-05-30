@@ -114,7 +114,7 @@ $result = mysqli_query($con, $query);
     }
 ?>
     <footer>
-        <p>&copy; 2023 MovieSite. All rights reserved.</p>
+        <p>&copy; 2026 The Binge Box. All rights reserved.</p>
     </footer>
 </body>
 </html>
