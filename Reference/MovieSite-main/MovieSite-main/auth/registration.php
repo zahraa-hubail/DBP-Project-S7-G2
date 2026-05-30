@@ -1,40 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php
+session_start();
+$base_path = "../";
 
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Registration</title>
-    <link rel="stylesheet" href="style_auth.css"/>
-</head>
-<body>
-<header>
-    <a href="../"><img class="logo" src="../logo.png" alt="Movies" /></a>
-    <nav>
-      <ul>
-        <li class="dropdown">
-            <a href="../search/">Search</a>
-            <div class="dropdown-content">
-                <a href="../search/category/">Search Category</a>
-            </div>
-        </li>
-        <li><a href="../account/">Account</a></li>
-        <li class="dropdown">
-          <a href="../about/">About</a>
-          <div class="dropdown-content">
-            <a href="../about/">About Us</a>
-            <a href="../about/movies.html">About Movies</a>
-          </div>
-        </li>
-      </ul>
-    </nav>
-  </header>
- <?php
-  ini_set('display_errors', 1);
-  ini_set('display_startup_errors', 1);
-  error_reporting(E_ALL);
-  
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
@@ -42,8 +13,21 @@ use PHPMailer\PHPMailer\Exception;
 require 'PHPMailer/Exception.php';
 require 'PHPMailer/PHPMailer.php';
 require 'PHPMailer/SMTP.php';
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registration — The Binge Box</title>
+  <link rel="stylesheet" href="../shared.css" />
+  <link rel="stylesheet" href="style_auth.css" />
+</head>
+<body>
+<?php include "../includes/navbar.php"; ?>
+<?php
 
-session_start();
 $con = mysqli_connect("localhost","u202301089","asdASD123!","db202301089");
 
 if (!$con) {
@@ -101,13 +85,14 @@ $result = mysqli_query($con, $query);
 } else {
 ?>
     <main>
-    <form class="form" action="" method="post">
+    <form class="form" action="" method="post" onsubmit="return validateRegistration()">
         <h1 class="login-title">Registration</h1>
-        <input type="text" class="login-input" name="username" placeholder="Username" required />
-        <input type="text" class="login-input" name="email" placeholder="Email Adress">
-        <input type="password" class="login-input" name="password" placeholder="Password">
+        <input type="text"     class="login-input" id="regUsername" name="username" placeholder="Username (3–50 chars)" required />
+        <input type="email"    class="login-input" id="regEmail"    name="email"    placeholder="Email Address" required />
+        <input type="password" class="login-input" id="regPassword" name="password" placeholder="Password (min 6 chars)" required />
+        <input type="password" class="login-input" id="regConfirm"  name="confirm"  placeholder="Confirm Password" required />
         <input type="submit" name="submit" value="Register" class="login-button">
-        <p class="link"><a href="login.php">Click to Login</a></p>
+        <p class="link"><a href="login.php">Already have an account? Login</a></p>
     </form>
     </main>
 <?php
@@ -116,5 +101,28 @@ $result = mysqli_query($con, $query);
     <footer>
         <p>&copy; 2026 The Binge Box. All rights reserved.</p>
     </footer>
+
+<script>
+function validateRegistration() {
+    var u  = document.getElementById('regUsername').value.trim();
+    var e  = document.getElementById('regEmail').value.trim();
+    var p  = document.getElementById('regPassword').value;
+    var c  = document.getElementById('regConfirm').value;
+    var errors = [];
+
+    if (u.length < 3)   errors.push('Username must be at least 3 characters.');
+    if (u.length > 50)  errors.push('Username must be under 50 characters.');
+    if (!/^[a-zA-Z0-9_]+$/.test(u)) errors.push('Username can only contain letters, numbers and underscores.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) errors.push('Please enter a valid email address.');
+    if (p.length < 6)   errors.push('Password must be at least 6 characters.');
+    if (p !== c)        errors.push('Passwords do not match.');
+
+    if (errors.length > 0) {
+        alert('Please fix the following:\n\n' + errors.join('\n'));
+        return false;
+    }
+    return true;
+}
+</script>
 </body>
 </html>

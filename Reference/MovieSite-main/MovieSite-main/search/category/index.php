@@ -1,4 +1,6 @@
 <?php
+session_start();
+$base_path = "../../";
 
 /*
 ========================================
@@ -50,98 +52,16 @@ $genres_data = json_decode(
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
-<title>Browse Categories</title>
+<title>Browse Categories — The Binge Box</title>
 
+<link rel="stylesheet" href="../../shared.css">
 <link rel="stylesheet" href="style.css">
 
 </head>
 
 <body>
 
-<!-- ==========================================
-     Navigation Header
-=========================================== -->
-
-<header>
-
-<div class="logo">
-
-<a href="../../">
-
-<img
-src="../../logo.png"
-alt="Movies"
-/>
-
-</a>
-
-</div>
-
-<nav>
-
-<ul>
-
-<li class="dropdown">
-
-<a href="../">
-
-Search
-
-</a>
-
-<div class="dropdown-content">
-
-<a href="./">
-
-Browse Categories
-
-</a>
-
-</div>
-
-</li>
-
-<li>
-
-<a href="../../account/">
-
-Account
-
-</a>
-
-</li>
-
-<li class="dropdown">
-
-<a href="../../about/">
-
-About
-
-</a>
-
-<div class="dropdown-content">
-
-<a href="../../about/">
-
-About Us
-
-</a>
-
-<a href="../../about/movies.html">
-
-About Movies
-
-</a>
-
-</div>
-
-</li>
-
-</ul>
-
-</nav>
-
-</header>
+<?php include "../../includes/navbar.php"; ?>
 
 <!-- ==========================================
      Main Content

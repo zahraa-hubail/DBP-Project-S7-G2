@@ -1,27 +1,13 @@
 <?php
 
 session_start();
-
 include("../database/DBconn.php");
-
 $con = getConnection();
 
-/*
---------------------------------------------------
-Only creators may update movies
---------------------------------------------------
-*/
-
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'creator') {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../auth/login.php");
     exit();
 }
-
-/*
---------------------------------------------------
-Collect and sanitise form fields
---------------------------------------------------
-*/
 
 $movie_id     = intval($_POST['movie_id']     ?? 0);
 $title        = trim($_POST['title']          ?? '');
@@ -29,59 +15,57 @@ $description  = trim($_POST['description']    ?? '');
 $director     = trim($_POST['director']       ?? '');
 $release_year = intval($_POST['release_year'] ?? 0);
 $status       = trim($_POST['status']         ?? 'draft');
+$genre_id     = intval($_POST['genre_id']     ?? 0);
 
-if ($movie_id === 0 || $title === '' || $description === '') {
-    header("Location: index.php?error=missing_fields");
+if ($movie_id === 0 || $title === '') {
+    header("Location: all_movies.php?error=missing_fields");
     exit();
 }
 
-/*
---------------------------------------------------
-Update movie record
---------------------------------------------------
-*/
-
+// Update core movie fields
 $stmt = $con->prepare("
     UPDATE dbProj_movies
     SET title = ?, description = ?, director = ?, release_year = ?, status = ?
     WHERE movie_id = ?
 ");
-$stmt->bind_param("sssisi",
-    $title, $description, $director, $release_year, $status, $movie_id
-);
+$stmt->bind_param("sssisi", $title, $description, $director, $release_year, $status, $movie_id);
 $stmt->execute();
 
-/*
---------------------------------------------------
-Handle optional poster replacement
---------------------------------------------------
-*/
+// Update genre only if a real genre was chosen
+if ($genre_id > 0) {
+    $del = $con->prepare("DELETE FROM dbProj_movie_genres WHERE movie_id = ?");
+    $del->bind_param("i", $movie_id);
+    $del->execute();
 
+    $ins = $con->prepare("INSERT INTO dbProj_movie_genres (genre_id, movie_id) VALUES (?, ?)");
+    $ins->bind_param("ii", $genre_id, $movie_id);
+    $ins->execute();
+}
+
+// Handle optional poster replacement
 $file = $_FILES['poster'] ?? null;
 
 if ($file && $file['error'] !== UPLOAD_ERR_NO_FILE) {
 
     if ($file['error'] !== UPLOAD_ERR_OK) {
-        header("Location: index.php?error=upload_failed");
+        header("Location: edit_movie.php?id=$movie_id&error=upload_failed");
         exit();
     }
 
-    // Validate MIME type via finfo (not browser-supplied type)
     $finfo   = new finfo(FILEINFO_MIME_TYPE);
     $mime    = $finfo->file($file['tmp_name']);
     $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
     if (!in_array($mime, $allowed)) {
-        header("Location: index.php?error=invalid_type");
+        header("Location: edit_movie.php?id=$movie_id&error=invalid_type");
         exit();
     }
 
     if ($file['size'] > 5 * 1024 * 1024) {
-        header("Location: index.php?error=file_too_large");
+        header("Location: edit_movie.php?id=$movie_id&error=file_too_large");
         exit();
     }
 
-    // Build upload directory
     $project_root = realpath(__DIR__ . '/..');
     $upload_dir   = $project_root . DIRECTORY_SEPARATOR . 'movies_images' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
     if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
@@ -100,14 +84,12 @@ if ($file && $file['error'] !== UPLOAD_ERR_NO_FILE) {
         if ($raw !== false && file_put_contents($dest, $raw) !== false) $saved = true;
     }
     if (!$saved) {
-        header("Location: index.php?error=save_failed");
+        header("Location: edit_movie.php?id=$movie_id&error=save_failed");
         exit();
     }
 
     $new_file_url = "movies_images/uploads/" . $filename;
 
-    // Replace the existing image media row for this movie
-    // (delete old, insert new — avoids needing to know the media_id)
     $del = $con->prepare("DELETE FROM dbProj_media WHERE movie_id = ? AND media_type = 'image'");
     $del->bind_param("i", $movie_id);
     $del->execute();
@@ -117,16 +99,5 @@ if ($file && $file['error'] !== UPLOAD_ERR_NO_FILE) {
     $ins->execute();
 }
 
-/* Update YouTube trailer */
-$trailer_url = trim($_POST['trailer_url'] ?? '');
-$del_trailer = $con->prepare("DELETE FROM dbProj_media WHERE movie_id = ? AND media_type = 'video'");
-$del_trailer->bind_param("i", $movie_id);
-$del_trailer->execute();
-if ($trailer_url !== '' && filter_var($trailer_url, FILTER_VALIDATE_URL)) {
-    $ins_trailer = $con->prepare("INSERT INTO dbProj_media (movie_id, media_type, file_url) VALUES (?, 'video', ?)");
-    $ins_trailer->bind_param("is", $movie_id, $trailer_url);
-    $ins_trailer->execute();
-}
-
-header("Location: index.php?success=movie_updated");
+header("Location: all_movies.php?msg=movie_updated");
 exit();

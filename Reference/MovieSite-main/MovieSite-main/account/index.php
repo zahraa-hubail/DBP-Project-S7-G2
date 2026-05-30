@@ -6,34 +6,13 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Account - The Binge Box</title>
+        <link rel="stylesheet" href="../shared.css" />
         <link rel="stylesheet" href="account.css" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     </head>
 
     <body>
-        <header>
-            <div class="logo">
-                <a href="../"><img src="../logo.png" alt="Movies" /></a>
-            </div>
-            <nav>
-                <ul>
-                    <li class="dropdown">
-                        <a href="../search/">Search</a>
-                        <div class="dropdown-content">
-                            <a href="../search/category/">Search Category</a>
-                        </div>
-                    </li>
-                    <li><a href="./">Account</a></li>
-                    <li class="dropdown">
-                        <a href="../about/">About</a>
-                        <div class="dropdown-content">
-                            <a href="../about/">About Us</a>
-                            <a href="../about/movies.html">About Movies</a>
-                        </div>
-                    </li>
-                </ul>
-            </nav>
-        </header>
+        <?php $base_path = "../"; include "../includes/navbar.php"; ?>
         <main>
             <?php
             session_start();

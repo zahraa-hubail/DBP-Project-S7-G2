@@ -9,8 +9,17 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-// 2. Fetch Movies with Creator Names
-$query = "SELECT m.*, u.username FROM dbProj_movies m JOIN dbProj_users u ON m.created_by = u.user_id";
+// 2. Fetch Movies with Creator Names and Genres
+$query = "
+    SELECT m.movie_id, m.title, m.status, u.username,
+           GROUP_CONCAT(g.name ORDER BY g.name SEPARATOR ', ') AS genre_names
+    FROM dbProj_movies m
+    JOIN dbProj_users u ON m.created_by = u.user_id
+    LEFT JOIN dbProj_movie_genres mg ON m.movie_id = mg.movie_id
+    LEFT JOIN dbProj_genres g ON mg.genre_id = g.genre_id
+    GROUP BY m.movie_id, m.title, m.status, u.username
+    ORDER BY m.created_at DESC
+";
 $result = mysqli_query($con, $query);
 ?>
 
@@ -19,6 +28,7 @@ $result = mysqli_query($con, $query);
     <head>
         <meta charset="UTF-8">
         <title>Manage Movies | The Binge Box</title>
+        <link rel="stylesheet" href="../shared.css">
         <link rel="stylesheet" href="../account/account.css">
         <link rel="stylesheet" href="admin.css">
     </head>
@@ -50,18 +60,7 @@ $result = mysqli_query($con, $query);
 
     <body class="admin-page">
 
-        <header>
-            <div class="logo">
-                <img src="../logo.png" alt="Binge Box Logo">
-            </div>
-            <nav>
-                <ul>
-                    <li><a href="dashboard.php">Dashboard</a></li>
-                    <li><a href="manage_users.php">Manage Users</a></li>
-                    <li><a href="../auth/logout.php">Logout</a></li>
-                </ul>
-            </nav>
-        </header>
+        <?php $base_path = "../"; include "../includes/navbar.php"; ?>
 
         <main>
             <div class="profile">
@@ -69,12 +68,9 @@ $result = mysqli_query($con, $query);
                     <div class="alert success-alert">
                         <strong>Success!</strong> 
                         <?php
-                        if ($_GET['msg'] == 'user_deleted') {
-                            echo "The user account has been permanently removed.";
-                        }
-                        if ($_GET['msg'] == 'movie_deleted') {
-                            echo "The movie listing has been deleted from the database.";
-                        }
+                        if ($_GET['msg'] == 'user_deleted')    echo "The user account has been permanently removed.";
+                        if ($_GET['msg'] == 'movie_deleted')   echo "The movie listing has been deleted from the database.";
+                        if ($_GET['msg'] == 'movie_updated')   echo "Movie updated successfully.";
                         ?>
                     </div>
                 <?php endif; ?>
@@ -118,7 +114,7 @@ if (mysqli_num_rows($result) > 0):
                                     <tr>
                                         <td><?php echo $row['movie_id']; ?></td>
                                         <td><?php echo htmlspecialchars($row['title']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['genre']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['genre_names'] ?? '—'); ?></td>
                                         <td><?php echo htmlspecialchars($row['username']); ?></td>
                                         <td class="action-buttons">
                                             <a href="edit_movie.php?id=<?php echo $row['movie_id']; ?>" class="btn-style edit-btn">Edit</a>

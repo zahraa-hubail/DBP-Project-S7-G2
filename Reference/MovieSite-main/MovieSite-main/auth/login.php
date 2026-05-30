@@ -1,90 +1,104 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php
+session_start();
+$base_path = "../";
 
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Login</title>
-        <link rel="stylesheet" href="style_auth.css"/>
-    </head>
-    <body>
-        <header>
-            <a href="../"><img class="logo" src="../logo.png" alt="Movies" /></a>
-            <nav>
-                <ul>
-                    <li class="dropdown">
-                        <a href="../search/">Search</a>
-                        <div class="dropdown-content">
-                            <a href="../search/category/">Search Category</a>
-                        </div>
-                    </li>
-                    <li><a href="../account/">Account</a></li>
-                    <li class="dropdown">
-                        <a href="../about/">About</a>
-                        <div class="dropdown-content">
-                            <a href="../about/">About Us</a>
-                            <a href="../about/movies.html">About Movies</a>
-                        </div>
-                    </li>
-                </ul>
-            </nav>
-        </header>
-        <?php
-        session_start();
-        $con = mysqli_connect("localhost", "u202301089", "asdASD123!", "db202301089");
-        if (!$con) {
-            die("Connection failed: " . mysqli_connect_error());
-        }
-        if (isset($_SESSION['username'])) {
-            header("Location: ../account/");
+$con = mysqli_connect("localhost", "u202301089", "asdASD123!", "db202301089");
+if (!$con) die("Connection failed: " . mysqli_connect_error());
+
+if (isset($_SESSION['username'])) {
+    header("Location: ../account/");
+    exit();
+}
+
+if (isset($_POST['submit'])) {
+    $username = trim($_POST['username'] ?? '');
+    $password = trim($_POST['password'] ?? '');
+
+    /* Server-side validation */
+    if ($username === '' || $password === '') {
+        $login_error = "Username and password are required.";
+    } elseif (strlen($username) > 100 || strlen($password) > 100) {
+        $login_error = "Input too long.";
+    } else {
+        /* Prepared statement — safe against SQL injection */
+        $hash  = md5($password);
+        $stmt  = $con->prepare("SELECT * FROM dbProj_users WHERE username = ? AND password_hash = ? AND is_active = 1");
+        $stmt->bind_param("ss", $username, $hash);
+        $stmt->execute();
+        $result    = $stmt->get_result();
+        $user_data = $result->fetch_assoc();
+
+        if ($user_data) {
+            $_SESSION['username'] = $username;
+            $_SESSION['id']       = $user_data['user_id'];
+
+            if ($user_data['role_id'] == 1) {
+                $_SESSION['role'] = 'admin';
+                header("Location: ../admin/dashboard.php");
+            } elseif ($user_data['role_id'] == 2) {
+                $_SESSION['role'] = 'creator';
+                header("Location: ../creator/index.php");
+            } else {
+                $_SESSION['role'] = 'viewer';
+                header("Location: ../account/");
+            }
             exit();
         }
-        if (isset($_POST['submit'])) {
-            $username = mysqli_real_escape_string($con, stripslashes($_POST['username']));
-            $password = mysqli_real_escape_string($con, stripslashes($_POST['password']));
+        $login_error = "Login failed. Please check your username, password, or verify your email.";
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — The Binge Box</title>
+    <link rel="stylesheet" href="../shared.css" />
+    <link rel="stylesheet" href="style_auth.css" />
+</head>
+<body>
 
-            $query = "SELECT * FROM `dbProj_users` WHERE username='$username' AND password_hash='" . md5($password) . "' AND is_active='1'";
-            $result = mysqli_query($con, $query);
-            $rows = mysqli_num_rows($result);
+<?php include "../includes/navbar.php"; ?>
 
-            if ($rows == 1) {
-                $user_data = mysqli_fetch_assoc($result);
-                $_SESSION['username'] = $username;
-                $_SESSION['id'] = $user_data['user_id'];
+<main>
+    <?php if (isset($login_error)): ?>
+    <div class="form">
+        <p style="color:#c0392b; font-weight:600;"><?= htmlspecialchars($login_error) ?></p>
+        <p class="link">Click here to <a href="login.php">try again</a></p>
+    </div>
+    <?php else: ?>
+    <form class="form" method="post" name="login" onsubmit="return validateLogin()">
+        <h1 class="login-title">Login</h1>
+        <input type="text"     class="login-input" id="loginUsername" name="username" placeholder="Username" autofocus />
+        <input type="password" class="login-input" id="loginPassword" name="password" placeholder="Password" />
+        <input type="submit"   class="login-button" name="submit" value="Login" />
+        <p class="link"><a href="registration.php">New Registration</a></p>
+    </form>
+    <?php endif; ?>
+</main>
 
-                if ($user_data['role_id'] == 1) {
-                    $_SESSION['role'] = 'admin';
-                    header("Location: ../admin/dashboard.php");
-                } elseif ($user_data['role_id'] == 2) {
-                    $_SESSION['role'] = 'creator';
-                    header("Location: ../creator/index.php");
-                } else {
-                    $_SESSION['role'] = 'viewer';
-                    header("Location: ../account/");
-                }
-                exit();
-            } else {
-                echo "<div class='form'>
-                <h3>Login failed. Please check your username, password, or verify your email.</h3><br/>
-                <p class='link'>Click here to <a href='login.php'>Login</a></p>
-                </div>";
-            }
-        } else {
+<footer>
+    <p>&copy; 2026 The Binge Box. All rights reserved.</p>
+</footer>
 
-            echo '<main>
-  <form class="form" method="post" name="login">
-      <h1 class="login-title">Login</h1>
-      <input type="text" class="login-input" name="username" placeholder="Username" autofocus="true"/>
-      <input type="password" class="login-input" name="password" placeholder="Password"/>
-      <input type="submit" value="Login" name="submit" class="login-button"/>
-      <p class="link"><a href="registration.php">New Registration</a></p>
-  </form>
-  </main>';
-        }
-        ?>
-        <footer>
-            <p>&copy; 2026 The Binge Box. All rights reserved.</p>
-        </footer>
-    </body>
+<script>
+function validateLogin() {
+    var u = document.getElementById('loginUsername').value.trim();
+    var p = document.getElementById('loginPassword').value;
+    var errors = [];
+
+    if (u === '')       errors.push('Username is required.');
+    if (u.length > 100) errors.push('Username is too long.');
+    if (p === '')       errors.push('Password is required.');
+
+    if (errors.length > 0) {
+        alert('Please fix the following:\n\n' + errors.join('\n'));
+        return false;
+    }
+    return true;
+}
+</script>
+</body>
 </html>

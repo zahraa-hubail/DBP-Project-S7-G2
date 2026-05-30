@@ -247,22 +247,12 @@ $total_reviews = $row_reviews_count['total_reviews'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($result['title']); ?></title>
+    <link rel="stylesheet" href="../shared.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-    <a href="../">
-        <img class="logo" src="../logo.png">
-    </a>
-    <nav>
-        <ul>
-            <li><a href="../search/">Search</a></li>
-            <li><a href="../account/">Account</a></li>
-            <li><a href="../about/">About</a></li>
-        </ul>
-    </nav>
-</header>
+<?php $base_path = "../"; include "../includes/navbar.php"; ?>
 
 <main>
 
@@ -335,6 +325,35 @@ else {
     <br><br>
     <h2>Official TMDB Score: <span style="font-weight:400"><?php echo $result['vote_average']; ?></span></h2>
     <?php } ?>
+
+    <?php
+    /* Show YouTube trailer if one is stored for this movie */
+    $trailer_q = $con->prepare("SELECT file_url FROM dbProj_media WHERE movie_id = ? AND media_type = 'video' LIMIT 1");
+    $trailer_q->bind_param("i", $movie_id);
+    $trailer_q->execute();
+    $trailer_row = $trailer_q->get_result()->fetch_assoc();
+    if ($trailer_row) {
+        /* Extract YouTube video ID from the URL */
+        $yt_url = $trailer_row['file_url'];
+        $yt_id  = '';
+        if (preg_match('/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/', $yt_url, $m)) {
+            $yt_id = $m[1];
+        }
+        if ($yt_id): ?>
+    <br><br>
+    <h2>Trailer</h2>
+    <br>
+    <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:12px; max-width:1280px;">
+        <iframe
+            src="https://www.youtube.com/embed/<?php echo htmlspecialchars($yt_id); ?>"
+            style="position:absolute; top:0; left:0; width:100%; height:100%; border:none;"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+        </iframe>
+    </div>
+        <?php endif;
+    }
+    ?>
 </div>
 
 </div>

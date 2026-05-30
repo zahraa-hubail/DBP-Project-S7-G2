@@ -166,9 +166,26 @@ Edit Movie
 
 </h1>
 
+<?php
+// Fetch current poster for preview
+$media_q = $con->prepare("SELECT file_url FROM dbProj_media WHERE movie_id = ? LIMIT 1");
+$media_q->bind_param("i", $movie_id);
+$media_q->execute();
+$current_media = $media_q->get_result()->fetch_assoc();
+$current_poster = $current_media ? '../' . $current_media['file_url'] : '../movies_images/no_image.jpg';
+?>
+
+<div style="margin-bottom:20px;">
+    <p style="font-weight:600; margin-bottom:8px;">Current Poster:</p>
+    <img src="<?php echo htmlspecialchars($current_poster); ?>"
+         alt="Current poster"
+         style="height:200px; border-radius:10px; object-fit:cover; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+</div>
+
 <form
 action="update_movie.php"
 method="POST"
+enctype="multipart/form-data"
 >
 
 <input
@@ -224,6 +241,29 @@ Draft
 </option>
 
 </select>
+
+<?php
+$cur_trailer_q = $con->prepare("SELECT file_url FROM dbProj_media WHERE movie_id = ? AND media_type = 'video' LIMIT 1");
+$cur_trailer_q->bind_param("i", $movie_id);
+$cur_trailer_q->execute();
+$cur_trailer = $cur_trailer_q->get_result()->fetch_assoc();
+?>
+<input type="url" name="trailer_url"
+       value="<?php echo htmlspecialchars($cur_trailer['file_url'] ?? ''); ?>"
+       placeholder="YouTube Trailer URL (optional)">
+<small style="color:#888;">Leave blank to remove trailer. Paste a YouTube link to add/change it.</small>
+
+<label style="font-weight:600; margin-top:8px; display:block;">
+    Change Poster (optional)
+</label>
+
+<input
+type="file"
+name="poster"
+accept="image/jpeg,image/png,image/gif,image/webp"
+>
+
+<small style="color:#888;">Leave empty to keep the current poster. Max 5 MB.</small>
 
 <button type="submit">
 
