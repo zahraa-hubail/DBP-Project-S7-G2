@@ -12,9 +12,10 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 // 2. Fetch User Data to Populate Form
 if (isset($_GET['id'])) {
     $user_id = intval($_GET['id']);
-    $query = "SELECT * FROM dbProj_users WHERE user_id = $user_id";
-    $result = mysqli_query($con, $query);
-    $user_data = mysqli_fetch_assoc($result);
+    $stmt_fetch = $con->prepare("SELECT * FROM dbProj_users WHERE user_id = ?");
+    $stmt_fetch->bind_param("i", $user_id);
+    $stmt_fetch->execute();
+    $user_data = $stmt_fetch->get_result()->fetch_assoc();
 
     if (!$user_data) {
         header("Location: manage_users.php?error=not_found");
@@ -24,21 +25,18 @@ if (isset($_GET['id'])) {
 
 // 3. Handle Form Submission (Update Logic)
 if (isset($_POST['update_user'])) {
-    $uid = intval($_POST['user_id']);
-    $username = mysqli_real_escape_string($con, $_POST['username']);
-    $email = mysqli_real_escape_string($con, $_POST['email']);
-    $role_id = intval($_POST['role_id']);
-    $is_active = intval($_POST['is_active']);
+    $uid       = intval($_POST['user_id']);
+    $username  = trim($_POST['username']  ?? '');
+    $email     = trim($_POST['email']     ?? '');
+    $role_id   = intval($_POST['role_id']   ?? 3);
+    $is_active = intval($_POST['is_active'] ?? 0);
 
-    $update_query = "UPDATE dbProj_users SET 
-                    username = '$username', 
-                    email = '$email', 
-                    role_id = $role_id, 
-                    is_active = $is_active 
-                    WHERE user_id = $uid";
+    $stmt_upd = $con->prepare("UPDATE dbProj_users SET username = ?, email = ?, role_id = ?, is_active = ? WHERE user_id = ?");
+    $stmt_upd->bind_param("ssiii", $username, $email, $role_id, $is_active, $uid);
 
-    if (mysqli_query($con, $update_query)) {
+    if ($stmt_upd->execute()) {
         header("Location: manage_users.php?msg=updated");
+        exit();
     } else {
         $error_msg = "Database Error: Could not update user.";
     }
@@ -50,21 +48,13 @@ if (isset($_POST['update_user'])) {
 <head>
     <meta charset="UTF-8">
     <title>Edit User | The Binge Box</title>
+    <link rel="stylesheet" href="../shared.css">
     <link rel="stylesheet" href="../account/account.css">
     <link rel="stylesheet" href="admin.css">
 </head>
 <body class="admin-page">
 
-<header class="no-print">
-    <div class="logo"><img src="../logo.png" alt="Binge Box"></div>
-    <nav>
-        <ul>
-            <li><a href="dashboard.php">Dashboard</a></li>
-            <li><a href="manage_users.php">Manage Users</a></li>
-            <li><a href="../auth/logout.php">Logout</a></li>
-        </ul>
-    </nav>
-</header>
+<?php $base_path = "../"; include "../includes/navbar.php"; ?>
 
 <main>
     <div class="profile">

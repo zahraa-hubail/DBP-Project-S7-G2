@@ -20,7 +20,9 @@ $admin_data = mysqli_fetch_assoc($result);
     <head>
         <meta charset="UTF-8">
         <title>Admin Dashboard - The Binge Box</title>
-        <link rel="stylesheet" href="../account/account.css"> <link rel="stylesheet" href="admin.css"> 
+        <link rel="stylesheet" href="../shared.css">
+        <link rel="stylesheet" href="../account/account.css">
+        <link rel="stylesheet" href="admin.css">
     </head>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -47,16 +49,7 @@ $admin_data = mysqli_fetch_assoc($result);
         });
     </script>
     <body class="admin-page">
-        <header>
-            <div class="logo"><a href="../"><img src="../logo.png" alt="Movies" /></a></div>
-            <nav>
-                <ul>
-                    <li><a href="../search/">Search</a></li>
-                    <li><a href="./dashboard.php">Admin Dashboard</a></li>
-                    <li><a href="../auth/logout.php">Logout</a></li>
-                </ul>
-            </nav>
-        </header>
+        <?php $base_path = "../"; include "../includes/navbar.php"; ?>
 
         <main>
             <section class="profile">
@@ -132,8 +125,9 @@ $admin_data = mysqli_fetch_assoc($result);
                                 <td><?php echo $movie['movie_id']; ?></td>
                                 <td><?php echo htmlspecialchars($movie['title']); ?></td>
                                 <td><?php echo htmlspecialchars($movie['username']); ?></td>
-                                <td>
-                                    <button class="remove-btn" onclick="confirmDelete(<?php echo $movie['movie_id']; ?>, 'dashboard')">Remove</button>
+                                <td class="action-buttons">
+                                    <a href="edit_movie.php?id=<?php echo $movie['movie_id']; ?>" class="btn-style edit-btn">Edit</a>
+                                    <button class="btn-style delete-btn" onclick="confirmDelete(<?php echo $movie['movie_id']; ?>, 'dashboard')">Delete</button>
                                 </td>
                             </tr>
 <?php endwhile; ?>

@@ -17,7 +17,8 @@ $result = mysqli_query($con, $query);
     <head>
         <meta charset="UTF-8">
         <title>Manage Users | The Binge Box</title>
-        <link rel="stylesheet" href="../account/account.css"> 
+        <link rel="stylesheet" href="../shared.css">
+        <link rel="stylesheet" href="../account/account.css">
         <link rel="stylesheet" href="admin.css">
     </head>
     <script>
@@ -40,18 +41,7 @@ $result = mysqli_query($con, $query);
     </script>
     <body class="admin-page">
 
-        <header>
-            <div class="logo">
-                <img src="../logo.png" alt="Binge Box Logo">
-            </div>
-            <nav>
-                <ul>
-                    <li><a href="dashboard.php">Dashboard</a></li>
-                    <li><a href="reports.php">System Reports</a></li>
-                    <li><a href="../auth/logout.php">Logout</a></li>
-                </ul>
-            </nav>
-        </header>
+        <?php $base_path = "../"; include "../includes/navbar.php"; ?>
 
         <main>
             <div class="profile">

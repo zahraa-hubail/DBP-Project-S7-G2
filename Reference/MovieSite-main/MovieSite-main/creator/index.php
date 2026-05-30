@@ -63,70 +63,14 @@ content="width=device-width, initial-scale=1.0">
 
 <title>Creator Dashboard</title>
 
+<link rel="stylesheet" href="../shared.css">
 <link rel="stylesheet" href="creator.css">
 
 </head>
 
 <body>
 
-<!-- ==========================================
-     Navigation Header
-=========================================== -->
-
-<header>
-
-<div class="logo">
-
-<a href="../">
-
-<img
-src="../logo.png"
-alt="Movies"
->
-
-</a>
-
-</div>
-
-<nav>
-
-<ul>
-
-<li>
-
-<a href="../search/">
-
-Search
-
-</a>
-
-</li>
-
-<li>
-
-<a href="./">
-
-Creator Dashboard
-
-</a>
-
-</li>
-
-<li>
-
-<a href="../auth/logout.php">
-
-Logout
-
-</a>
-
-</li>
-
-</ul>
-
-</nav>
-
-</header>
+<?php $base_path = "../"; include "../includes/navbar.php"; ?>
 
 <!-- ==========================================
      Main Content
@@ -155,32 +99,35 @@ Welcome back,
      Success Messages
 =========================================== -->
 
-<?php if(isset($_GET['success'])) { ?>
-
+<?php if (isset($_GET['success'])): ?>
 <div class="success-message">
-
-<?php
-
-if($_GET['success'] == "movie_added") {
-
-    echo "Movie added successfully!";
-}
-
-if($_GET['success'] == "movie_updated") {
-
-    echo "Movie updated successfully!";
-}
-
-if($_GET['success'] == "movie_deleted") {
-
-    echo "Movie deleted successfully!";
-}
-
-?>
-
+    <?php
+    $msgs = [
+        'movie_added'   => 'Movie added successfully!',
+        'movie_updated' => 'Movie updated successfully!',
+        'movie_deleted' => 'Movie deleted successfully!',
+    ];
+    echo $msgs[$_GET['success']] ?? 'Done!';
+    ?>
 </div>
+<?php endif; ?>
 
-<?php } ?>
+<?php if (isset($_GET['error'])): ?>
+<div class="error-message">
+    <?php
+    $errors = [
+        'missing_fields' => 'Please fill in all required fields.',
+        'upload_failed'  => 'File upload failed. Please try again.',
+        'invalid_type'   => 'Invalid file type. Only JPG, PNG, GIF and WebP images are allowed.',
+        'file_too_large' => 'File is too large. Maximum size is 5 MB.',
+        'save_failed'    => 'Could not save the uploaded file. Check server permissions.',
+        'db_error'       => 'Database error. Please try again.',
+        'user_not_found' => 'Session error. Please log in again.',
+    ];
+    echo $errors[$_GET['error']] ?? 'An unexpected error occurred.';
+    ?>
+</div>
+<?php endif; ?>
 
 <!-- ==========================================
      Add Movie Form
@@ -197,6 +144,9 @@ Add New Movie
 <form
 action="add_movie.php"
 method="POST"
+enctype="multipart/form-data"
+id="addMovieForm"
+onsubmit="return validateAddMovie()"
 >
 
 <input
@@ -290,6 +240,26 @@ Draft
 </option>
 
 </select>
+
+<input
+type="url"
+name="trailer_url"
+placeholder="YouTube Trailer URL (e.g. https://www.youtube.com/watch?v=...)"
+>
+
+<small style="color:#888;">Optional — paste a YouTube link and it will be embedded on the movie page.</small>
+
+<label style="font-weight:600; margin-top:8px; display:block;">
+    Movie Poster
+</label>
+
+<input
+type="file"
+name="poster"
+accept="image/jpeg,image/png,image/gif,image/webp"
+>
+
+<small style="color:#888;">JPG, PNG, GIF or WebP — max 5 MB. Leave empty to use a placeholder.</small>
 
 <button type="submit">
 
@@ -450,6 +420,39 @@ Delete
 </section>
 
 </main>
+
+<script>
+function validateAddMovie() {
+    var errors = [];
+
+    var title       = document.querySelector('#addMovieForm [name="title"]').value.trim();
+    var description = document.querySelector('#addMovieForm [name="description"]').value.trim();
+    var director    = document.querySelector('#addMovieForm [name="director"]').value.trim();
+    var year        = parseInt(document.querySelector('#addMovieForm [name="release_year"]').value, 10);
+    var genre       = document.querySelector('#addMovieForm [name="genre_id"]').value;
+    var poster      = document.querySelector('#addMovieForm [name="poster"]');
+
+    if (title.length < 1)   errors.push('Title is required.');
+    if (title.length > 200) errors.push('Title must be under 200 characters.');
+    if (description.length < 10) errors.push('Description must be at least 10 characters.');
+    if (director.length < 1) errors.push('Director name is required.');
+    if (isNaN(year) || year < 1900 || year > 2030) errors.push('Release year must be between 1900 and 2030.');
+    if (!genre || genre === '') errors.push('Please select a genre.');
+
+    if (poster && poster.files.length > 0) {
+        var file = poster.files[0];
+        var allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowed.includes(file.type)) errors.push('Poster must be a JPG, PNG, GIF or WebP image.');
+        if (file.size > 5 * 1024 * 1024) errors.push('Poster file must be under 5 MB.');
+    }
+
+    if (errors.length > 0) {
+        alert('Please fix the following:\n\n' + errors.join('\n'));
+        return false;
+    }
+    return true;
+}
+</script>
 
 </body>
 

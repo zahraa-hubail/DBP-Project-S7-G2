@@ -1,317 +1,131 @@
+<?php
+session_start();
+$base_path = "../";
+$v = filemtime(__FILE__); // cache-bust version
+?>
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
-    <!-- ==========================================
-         Page Metadata
-    =========================================== -->
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Search Movies</title>
-
-    <!-- ==========================================
-         Search Page Styling
-    =========================================== -->
-
-    <link rel="stylesheet" href="search.css">
-
-    <!-- ==========================================
-         jQuery Library
-    =========================================== -->
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Movies — The Binge Box</title>
+    <link rel="stylesheet" href="../shared.css?v=<?= $v ?>">
+    <link rel="stylesheet" href="search.css?v=<?= $v ?>">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-
-    <!-- ==========================================
-         AJAX Live Search Script
-    =========================================== -->
-
-    <script>
-
-        $(document).ready(function () {
-
-            /*
-            ------------------------------------------
-            Load search results dynamically
-            ------------------------------------------
-            */
-
-            function loadResults() {
-
-                var searchTerm = $("#search").val();
-
-                var year = $("#year").val();
-
-                var sort = $("#sort").val();
-
-                /*
-                ------------------------------------------
-                Send AJAX request to search.php
-                ------------------------------------------
-                */
-
-                $.ajax({
-
-                    type: "GET",
-
-                    url: "search.php",
-
-                    data: {
-
-                        search: searchTerm,
-
-                        year: year,
-
-                        sort: sort
-                    },
-
-                    /*
-                    ------------------------------------------
-                    Display returned search results
-                    ------------------------------------------
-                    */
-
-                    success: function (response) {
-
-                        $("#search-results").html(response);
-                    }
-                });
-            }
-
-            /*
-            ------------------------------------------
-            Trigger live search events
-            ------------------------------------------
-            */
-
-            $("#search").on("input", loadResults);
-
-            $("#year").on("change", loadResults);
-
-            $("#sort").on("change", loadResults);
-
-        });
-
-    </script>
-
 </head>
-
 <body>
 
-<!-- ==========================================
-     Navigation Header
-=========================================== -->
-
-<header>
-
-    <div class="logo">
-
-        <a href="../">
-
-            <img src="../logo.png" alt="Movies">
-
-        </a>
-
-    </div>
-
-    <nav>
-
-        <ul>
-
-            <!-- ==========================================
-                 Search Navigation Dropdown
-            =========================================== -->
-
-            <li class="dropdown">
-
-                <a href="./">Search</a>
-
-                <div class="dropdown-content">
-
-                    <a href="./category/">
-
-                        Search Category
-
-                    </a>
-
-                </div>
-
-            </li>
-
-            <!-- ==========================================
-                 Account Navigation Link
-            =========================================== -->
-
-            <li>
-
-                <a href="../account/">
-
-                    Account
-
-                </a>
-
-            </li>
-
-            <!-- ==========================================
-                 About Navigation Dropdown
-            =========================================== -->
-
-            <li class="dropdown">
-
-                <a href="../about/">
-
-                    About
-
-                </a>
-
-                <div class="dropdown-content">
-
-                    <a href="../about/">
-
-                        About Us
-
-                    </a>
-
-                    <a href="../about/movies.html">
-
-                        About Movies
-
-                    </a>
-
-                </div>
-
-            </li>
-
-        </ul>
-
-    </nav>
-
-</header>
-
-<!-- ==========================================
-     Main Search Content
-=========================================== -->
+<?php include "../includes/navbar.php"; ?>
 
 <main>
 
-    <h1>
-
-        Search Movies
-
-    </h1>
-
-    <!-- ==========================================
-         Search Filters
-    =========================================== -->
+    <h1 class="page-title">Search Movies</h1>
 
     <div class="search-controls">
-
-        <!-- ==========================================
-             Search Input
-        =========================================== -->
-
-        <input
-            type="text"
-            id="search"
-            placeholder="Search by title, description or director..."
-        >
-
-        <!-- ==========================================
-             Release Year Filter
-        =========================================== -->
-
+        <input  type="text"   id="search"   placeholder="Search by title, description or director..." />
+        <input  type="text"   id="creator"  placeholder="Filter by creator..." />
         <select id="year">
-
-            <option value="">
-
-                All Years
-
-            </option>
-
-            <?php
-
-            /*
-            ------------------------------------------
-            Generate release year options
-            ------------------------------------------
-            */
-
-            for ($i = 2026; $i >= 1980; $i--) {
-
-                echo "<option value='$i'>$i</option>";
-            }
-
-            ?>
-
+            <option value="">All Years</option>
+            <?php for ($i = 2026; $i >= 1980; $i--): ?>
+            <option value="<?= $i ?>"><?= $i ?></option>
+            <?php endfor; ?>
         </select>
-
-        <!-- ==========================================
-             Sorting Options
-        =========================================== -->
-
+        <select id="min_rating">
+            <option value="0">Any Rating</option>
+            <option value="1">&#9733; 1+</option>
+            <option value="2">&#9733; 2+</option>
+            <option value="3">&#9733; 3+</option>
+            <option value="4">&#9733; 4+</option>
+            <option value="4.5">&#9733; 4.5+</option>
+        </select>
         <select id="sort">
-
-            <option value="">
-
-                Default
-
-            </option>
-
-            <option value="rating_desc">
-
-                Highest Rated
-
-            </option>
-
-            <option value="rating_asc">
-
-                Lowest Rated
-
-            </option>
-
-            <option value="latest">
-
-                Latest Releases
-
-            </option>
-
-            <option value="oldest">
-
-                Oldest Releases
-
-            </option>
-
+            <option value="">Default (Newest)</option>
+            <option value="rating_desc">Highest Rated</option>
+            <option value="rating_asc">Lowest Rated</option>
+            <option value="latest">Latest Releases</option>
+            <option value="oldest">Oldest Releases</option>
         </select>
-
+        <button id="search-btn" class="search-btn" type="button">Search</button>
     </div>
 
-    <!-- ==========================================
-         Dynamic Search Results
-    =========================================== -->
-
-    <div id="search-results"></div>
+    <div id="search-results">
+        <p class="loading-msg">Loading movies&hellip;</p>
+    </div>
 
 </main>
 
-<!-- ==========================================
-     Footer
-=========================================== -->
-
 <footer>
-
-    <p>
-
-        &copy; 2026 MovieSite
-
-    </p>
-
+    <p>&copy; 2026 The Binge Box. All rights reserved.</p>
 </footer>
 
-</body>
+<script>
+$(document).ready(function () {
 
+    var currentPage = 1;
+
+    function loadResults(page) {
+        currentPage = page || 1;
+        $('#search-btn').prop('disabled', true).text('Searching…');
+        $.ajax({
+            type: 'GET',
+            url:  'search.php',
+            data: {
+                search:     $('#search').val(),
+                creator:    $('#creator').val(),
+                year:       $('#year').val(),
+                min_rating: $('#min_rating').val(),
+                sort:       $('#sort').val(),
+                page:       currentPage
+            },
+            success: function (html) {
+                $('#search-results').html(html || '<p class="no-results">No results found.</p>');
+            },
+            error: function () {
+                $('#search-results').html('<p class="no-results">Error loading results. Please try again.</p>');
+            },
+            complete: function () {
+                $('#search-btn').prop('disabled', false).text('Search');
+            }
+        });
+    }
+
+    /* Pre-fill from homepage hero (?init=...) and trigger search */
+    var params = new URLSearchParams(window.location.search);
+    var init   = params.get('init');
+    if (init) {
+        $('#search').val(init);
+        if (window.history.replaceState) {
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+    }
+
+    /* Always load on page open — shows all DB movies when blank */
+    loadResults();
+
+    /* Pagination click — delegated since content is injected by AJAX */
+    $(document).on('click', '#db-pagination .page-btn:not(.disabled), #db-pagination .page-num', function (e) {
+        e.preventDefault();
+        var p = parseInt($(this).data('page'), 10);
+        if (!isNaN(p)) { loadResults(p); $('html,body').animate({scrollTop: $('#search-results').offset().top - 80}, 200); }
+    });
+
+    /* Live-search resets to page 1 */
+    var debounce;
+    $('#search, #creator').on('input', function () {
+        clearTimeout(debounce);
+        debounce = setTimeout(function(){ loadResults(1); }, 400);
+    });
+
+    /* Instant on dropdown change or button click — reset to page 1 */
+    $('#year, #sort, #min_rating').on('change', function(){ loadResults(1); });
+    $('#search-btn').on('click',   function(){ loadResults(1); });
+
+    /* Enter key in search inputs */
+    $('#search, #creator').on('keydown', function (e) {
+        if (e.key === 'Enter') { clearTimeout(debounce); loadResults(1); }
+    });
+});
+</script>
+
+</body>
 </html>

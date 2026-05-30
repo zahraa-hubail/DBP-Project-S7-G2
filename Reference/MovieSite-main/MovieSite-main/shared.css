@@ -1,0 +1,132 @@
+/* ====================================================
+   SHARED NAVBAR  —  linked by every page
+   ==================================================== */
+
+header {
+    background-color: rgb(53, 87, 121);
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 65px;
+    padding: 0 28px;
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
+}
+
+/* Logo + site name */
+.logo-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.logo img {
+    height: 44px;
+    width: auto;
+    display: block;
+    flex-shrink: 0;
+}
+
+.site-name {
+    font-size: 18px;
+    font-weight: 800;
+    color: #000;
+    letter-spacing: 0.6px;
+    font-family: Georgia, 'Times New Roman', serif;
+    white-space: nowrap;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+nav > ul {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+}
+
+nav > ul > li {
+    position: relative;
+}
+
+.nav-link {
+    color: #fff;
+    text-decoration: none;
+    padding: 9px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.nav-link:hover {
+    background-color: #1e2f47;
+}
+
+.nav-arrow {
+    font-size: 9px;
+    opacity: 0.65;
+    line-height: 1;
+}
+
+.nav-login {
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.nav-login:hover  { background-color: rgba(255, 255, 255, 0.25) !important; }
+.nav-logout:hover { background-color: rgba(200, 50, 50, 0.5)    !important; }
+
+/* Dropdown — hidden by default, toggled via .open by JS */
+.dropdown-menu {
+    display: none;
+    list-style: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    background-color: rgb(53, 87, 121);
+    border-radius: 10px;
+    overflow: hidden;
+    min-width: 190px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+    z-index: 99999;
+    padding: 0;
+    margin: 0;
+}
+
+.dropdown-menu.open { display: block; }
+
+.dropdown-menu li a {
+    display: block;
+    color: #fff;
+    text-decoration: none;
+    padding: 12px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background-color 0.2s;
+}
+
+.dropdown-menu li a:hover { background-color: #1e2f47; }
+
+/* ====================================================
+   SHARED FOOTER
+   ==================================================== */
+footer {
+    background-color: #1e2f47;
+    color: rgba(255, 255, 255, 0.65);
+    text-align: center;
+    padding: 22px 20px;
+    font-size: 14px;
+}
