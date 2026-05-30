@@ -65,27 +65,12 @@ if (!empty($searchTerm)) {
    ============================================================ */
 $like = "%" . $searchTerm . "%";
 
-/* Full-text search via MATCH AGAINST when possible, LIKE as fallback */
-if (!empty($searchTerm)) {
-    $text_cond = "MATCH(m.title, m.description, m.director) AGAINST (? IN BOOLEAN MODE)";
-    $text_val  = $searchTerm . '*';   /* prefix wildcard for partial words */
-} else {
-    $text_cond = "(m.title LIKE ? OR m.director LIKE ? OR m.description LIKE ?)";
-    $text_val  = null;
-}
-
 /* --- Shared WHERE conditions --- */
 $where  = "WHERE m.status = 'published'
              AND (m.director IS NULL OR m.director != 'TMDB')
-             AND $text_cond";
-
-if (!empty($searchTerm)) {
-    $params = [$text_val];
-    $types  = "s";
-} else {
-    $params = [$like, $like, $like];
-    $types  = "sss";
-}
+             AND (m.title LIKE ? OR m.director LIKE ? OR m.description LIKE ?)";
+$params = [$like, $like, $like];
+$types  = "sss";
 
 if (!empty($year)) {
     $where   .= " AND m.release_year = ?";
