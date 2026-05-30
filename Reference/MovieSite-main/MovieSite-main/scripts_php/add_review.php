@@ -208,12 +208,10 @@ Redirect back to movie page
 --------------------------------------------------
 */
 
-header(
-    "Location: ../movie/?id=" .
-    $movie_id .
-    "&success=review_added"
-);
+$is_custom = intval($_POST['is_custom'] ?? 0);
+$param     = $is_custom ? "custom_id" : "id";
 
+header("Location: ../movie/?{$param}={$movie_id}&success=review_added");
 exit();
 
 ?>

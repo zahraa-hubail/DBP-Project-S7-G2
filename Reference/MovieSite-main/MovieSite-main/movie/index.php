@@ -359,7 +359,8 @@ else {
 </div>
 
 <form id="reviewForm" action="../scripts_php/add_review.php" method="post" onsubmit="return checkUserSession()">
-    <input type="hidden" name="movie_id" value="<?php echo $movie_id; ?>">
+    <input type="hidden" name="movie_id"   value="<?php echo $movie_id; ?>">
+    <input type="hidden" name="is_custom"  value="<?php echo $is_custom_movie ? '1' : '0'; ?>">
     <div class="review-input">
         <h3 class="name">
             <?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : "Guest"; ?>
@@ -452,8 +453,9 @@ if ($result_reviews->num_rows > 0) {
         */
         if (isset($_SESSION['id']) && ($_SESSION['id'] == $row['user_id'] || (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'))) {
             echo "<form action='../scripts_php/delete_review.php' method='POST' style='display:inline;'>";
-            echo "<input type='hidden' name='review_id' value='" . $row['comment_id'] . "'>";
-            echo "<input type='hidden' name='movie_id' value='" . $movie_id . "'>";
+            echo "<input type='hidden' name='review_id'  value='" . $row['comment_id'] . "'>";
+            echo "<input type='hidden' name='movie_id'   value='" . $movie_id . "'>";
+            echo "<input type='hidden' name='is_custom'  value='" . ($is_custom_movie ? '1' : '0') . "'>";
             echo "<button type='submit' class='delete-review-btn' onclick='return confirm(\"Are you sure you want to delete this review? This action cannot be undone.\")'>Delete</button>";
             echo "</form>";
         }
