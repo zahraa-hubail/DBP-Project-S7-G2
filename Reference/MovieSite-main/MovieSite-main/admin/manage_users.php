@@ -47,7 +47,7 @@ $result = mysqli_query($con, $query);
             <div class="profile">
                 <?php if (isset($_GET['msg'])): ?>
                     <div class="alert success-alert">
-                        <strong>Success!</strong> 
+ 
                         <?php
                         if ($_GET['msg'] == 'user_deleted') {
                             echo "The user account has been permanently removed.";

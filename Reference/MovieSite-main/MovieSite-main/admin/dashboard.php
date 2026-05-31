@@ -60,7 +60,6 @@ $admin_data = mysqli_fetch_assoc($result);
             <hr>
             <?php if (isset($_GET['msg'])): ?>
                 <div class="alert success-alert">
-                    <strong>Success!</strong> 
                     <?php
                     if ($_GET['msg'] == 'user_deleted')
                         echo "The user account has been permanently removed.";

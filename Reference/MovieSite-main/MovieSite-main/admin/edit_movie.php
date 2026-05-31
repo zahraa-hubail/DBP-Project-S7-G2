@@ -27,21 +27,27 @@ if (!$movie) {
     exit();
 }
 
-// Fetch current poster
-$media_q = $con->prepare("SELECT file_url FROM dbProj_media WHERE movie_id = ? LIMIT 1");
+// Fetch current poster (image only)
+$media_q = $con->prepare("SELECT file_url FROM dbProj_media WHERE movie_id = ? AND media_type = 'image' LIMIT 1");
 $media_q->bind_param("i", $movie_id);
 $media_q->execute();
 $current_media  = $media_q->get_result()->fetch_assoc();
 $current_poster = $current_media ? '../' . $current_media['file_url'] : '../movies_images/no_image.jpg';
 
-// Fetch all genres for the select
+// Fetch current trailer
+$trailer_q = $con->prepare("SELECT file_url FROM dbProj_media WHERE movie_id = ? AND media_type = 'video' LIMIT 1");
+$trailer_q->bind_param("i", $movie_id);
+$trailer_q->execute();
+$cur_trailer = $trailer_q->get_result()->fetch_assoc();
+
+// Fetch all genres
 $all_genres = mysqli_query($con, "SELECT * FROM dbProj_genres ORDER BY name ASC");
 
-// Fetch this movie's current genre
+// Fetch current genre
 $genre_q = $con->prepare("SELECT genre_id FROM dbProj_movie_genres WHERE movie_id = ? LIMIT 1");
 $genre_q->bind_param("i", $movie_id);
 $genre_q->execute();
-$current_genre = $genre_q->get_result()->fetch_assoc();
+$current_genre    = $genre_q->get_result()->fetch_assoc();
 $current_genre_id = $current_genre ? $current_genre['genre_id'] : 0;
 
 ?>
@@ -55,7 +61,6 @@ $current_genre_id = $current_genre ? $current_genre['genre_id'] : 0;
     <link rel="stylesheet" href="../creator/creator.css">
     <link rel="stylesheet" href="admin.css">
     <style>
-        /* Override creator.css main width for admin context */
         main { max-width: 800px; }
     </style>
 </head>
@@ -68,18 +73,15 @@ $current_genre_id = $current_genre ? $current_genre['genre_id'] : 0;
     <h1>Edit Movie</h1>
     <p class="welcome">Editing as <strong>Admin</strong> — changes apply immediately.</p>
 
-    <!-- Current poster preview -->
-    <section class="add-movie-box" style="margin-bottom:30px; padding:20px;">
-        <h2>Current Poster</h2>
-        <img src="<?php echo htmlspecialchars($current_poster); ?>"
-             alt="Current poster"
-             style="height:220px; border-radius:12px; object-fit:cover;
-                    box-shadow:0 4px 14px rgba(0,0,0,0.15); margin-top:12px;">
-    </section>
-
-    <!-- Edit form -->
     <section class="add-movie-box">
-        <h2>Movie Details</h2>
+
+        <!-- Current poster preview -->
+        <div style="margin-bottom:20px;">
+            <p style="font-weight:600; margin-bottom:8px;">Current Poster:</p>
+            <img src="<?php echo htmlspecialchars($current_poster); ?>"
+                 alt="Current poster"
+                 style="height:200px; border-radius:10px; object-fit:cover; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+        </div>
 
         <form action="update_movie.php" method="POST" enctype="multipart/form-data">
 
@@ -89,8 +91,7 @@ $current_genre_id = $current_genre ? $current_genre['genre_id'] : 0;
                    value="<?php echo htmlspecialchars($movie['title']); ?>"
                    placeholder="Movie Title" required>
 
-            <textarea name="description"
-                      placeholder="Movie Description" required
+            <textarea name="description" placeholder="Movie Description" required
             ><?php echo htmlspecialchars($movie['description']); ?></textarea>
 
             <input type="text" name="director"
@@ -116,7 +117,14 @@ $current_genre_id = $current_genre ? $current_genre['genre_id'] : 0;
                 <option value="draft"     <?php echo $movie['status'] === 'draft'     ? 'selected' : ''; ?>>Draft</option>
             </select>
 
-            <label style="font-weight:600; display:block;">Change Poster (optional)</label>
+            <input type="url" name="trailer_url"
+                   value="<?php echo htmlspecialchars($cur_trailer['file_url'] ?? ''); ?>"
+                   placeholder="YouTube Trailer URL (optional)">
+            <small style="color:#888;">Leave blank to remove trailer. Paste a YouTube link to add/change it.</small>
+
+            <label style="font-weight:600; margin-top:8px; display:block;">
+                Change Poster (optional)
+            </label>
             <input type="file" name="poster" accept="image/jpeg,image/png,image/gif,image/webp">
             <small style="color:#888;">Leave empty to keep the current poster. Max 5 MB.</small>
 
