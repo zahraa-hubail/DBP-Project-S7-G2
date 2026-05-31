@@ -1,72 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About - The Binge Box</title>
-  <link rel="stylesheet" href="about.css" />
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About — The Binge Box</title>
+    <link rel="stylesheet" href="../shared.css" />
+    <link rel="stylesheet" href="about.css" />
 </head>
-
 <body>
-  <header>
+
+<header>
     <div class="logo">
-      <a href="../"><img src="../logo.png" alt="Movies" /></a>
+        <a href="../index.php" class="logo-link">
+            <img src="../logo.png" alt="The Binge Box" />
+            <span class="site-name">The Binge Box</span>
+        </a>
     </div>
     <nav>
-      <ul>
-        <li class="dropdown">
-          <a href="../search/">Search</a>
-          <div class="dropdown-content">
-              <a href="../search/category/">Search Category</a>
-          </div>
-        </li>
-        <li><a href="../account/">Account</a></li>
-        <li class="dropdown">
-          <a href="./">About</a>
-          <div class="dropdown-content">
-            <a href="./">About Us</a>
-            <a href="movies.html">About Movies</a>
-          </div>
-        </li>
-      </ul>
+        <ul>
+            <li class="dropdown">
+                <a href="../search/" class="nav-link">Search <span class="nav-arrow">&#9660;</span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="../search/">Search Movies</a></li>
+                    <li><a href="../search/category/">Browse by Genre</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="./" class="nav-link">About <span class="nav-arrow">&#9660;</span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="./">About Us</a></li>
+                    <li><a href="movies.html">About Movies</a></li>
+                </ul>
+            </li>
+            <li><a href="../account/" class="nav-link">Account</a></li>
+            <li><a href="../auth/login.php" class="nav-link nav-login">Login</a></li>
+        </ul>
     </nav>
-  </header>
-  <main>
-    <div class="container">
-      <div class="titanddescription">
-        <div class="title">Welcome to The Binge Box 📺</div>
-        <div class="description">
-          <p>&nbsp;&nbsp;&nbsp;&nbsp;Welcome to The Binge Box, the ultimate digital haven for passionate cinephiles! </p>
-             The Binge Box is more than just a website; it's a thriving ecosystem designed 
-              to foster a friendly and engaging environment for all 
-            who share a deep love for the art of cinema. Join us as we embark on an exciting cinematic journey together!</p>
-          <p>&nbsp;&nbsp;&nbsp;&nbsp;Our platform is dedicated to uniting an entire community of film enthusiasts in a unique online space.</p>
-          <p>&nbsp;&nbsp;&nbsp;&nbsp;Here, users can delve into an impressive array of movies, access detailed information about each film, craft 
-            personal reviews, and curate their own list of favorite movies.</p>
-          <p>&nbsp;&nbsp;&nbsp;&nbsp;The Binge Box is more than just a website; it's a thriving ecosystem designed 
-            to foster a friendly and engaging environment for all 
-          who share a deep love for the art of cinema. Join us as we embark on an exciting cinematic journey together!</p>
-        </div>
-      </div>
-      <div class="titanddescription">
-        <div class="title">Why Choose The Binge Box? 🎬</div>
-        <div class="description">
-          <p>Here are a few reasons why The Binge Box stands out:</p>
-          <ul>
-            <li>🎬 Diverse Film Selection: Immerse yourself in a world of cinema with our vast and diverse collection of movies spanning various genres and eras.</li>
-            <li>🌟 Detailed Information: Get comprehensive details about each film, from cast and crew to plot summaries, enabling you to make informed choices for your movie nights.</li>
-            <li>📝 Personalized Reviews: Share your thoughts and insights by writing personalized reviews, contributing to a vibrant community dialogue about the films you love.</li>
-            <li>❤️ Create Your Movie Haven: Craft your unique list of favorite movies, building a personalized cinematic haven that reflects your taste and preferences.</li>
-            <li>🤝 Community Connection: Connect with like-minded cinephiles, fostering friendships and discussions in a welcoming and supportive digital space.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </main>
-  <footer>
-    <p>&copy; 2026 The Binge Box. All rights reserved.</p>
-</body>
+</header>
 
+<main>
+    <div class="container">
+        <div class="titanddescription">
+            <div class="title">Welcome to The Binge Box 📺</div>
+            <div class="description">
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;Welcome to The Binge Box, the ultimate digital haven for passionate cinephiles!</p>
+                <p>The Binge Box is more than just a website; it's a thriving ecosystem designed
+                    to foster a friendly and engaging environment for all
+                    who share a deep love for the art of cinema. Join us as we embark on an exciting cinematic journey together!</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;Our platform is dedicated to uniting an entire community of film enthusiasts in a unique online space.</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;Here, users can delve into an impressive array of movies, access detailed information about each film, craft
+                    personal reviews, and curate their own list of favorite movies.</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;The Binge Box is more than just a website; it's a thriving ecosystem designed
+                    to foster a friendly and engaging environment for all
+                    who share a deep love for the art of cinema. Join us as we embark on an exciting cinematic journey together!</p>
+            </div>
+        </div>
+        <div class="titanddescription">
+            <div class="title">Why Choose The Binge Box? 🎬</div>
+            <div class="description">
+                <p>Here are a few reasons why The Binge Box stands out:</p>
+                <ul>
+                    <li>🎬 Diverse Film Selection: Immerse yourself in a world of cinema with our vast and diverse collection of movies spanning various genres and eras.</li>
+                    <li>🌟 Detailed Information: Get comprehensive details about each film, from cast and crew to plot summaries, enabling you to make informed choices for your movie nights.</li>
+                    <li>📝 Personalized Reviews: Share your thoughts and insights by writing personalized reviews, contributing to a vibrant community dialogue about the films you love.</li>
+                    <li>❤️ Create Your Movie Haven: Craft your unique list of favorite movies, building a personalized cinematic haven that reflects your taste and preferences.</li>
+                    <li>🤝 Community Connection: Connect with like-minded cinephiles, fostering friendships and discussions in a welcoming and supportive digital space.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2026 The Binge Box. All rights reserved.</p>
+</footer>
+
+<script>
+(function () {
+    document.querySelectorAll('.dropdown').forEach(function (dd) {
+        var toggle = dd.querySelector('.nav-link');
+        var menu   = dd.querySelector('.dropdown-menu');
+        if (!toggle || !menu) return;
+        toggle.addEventListener('click', function (e) {
+            e.preventDefault();
+            var open = menu.classList.contains('open');
+            document.querySelectorAll('.dropdown-menu.open').forEach(function (m) { m.classList.remove('open'); });
+            if (!open) menu.classList.add('open');
+        });
+    });
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.dropdown')) {
+            document.querySelectorAll('.dropdown-menu.open').forEach(function (m) { m.classList.remove('open'); });
+        }
+    });
+}());
+</script>
+
+</body>
 </html>

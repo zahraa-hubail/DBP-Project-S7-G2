@@ -26,9 +26,10 @@ if ($_SERVER["REQUEST_METHOD"] != "POST") {
 Retrieve review deletion data
 --------------------------------------------------
 */
-$user_id = intval($_SESSION['id']);
-$movie_id = intval($_POST['movie_id']);
+$user_id   = intval($_SESSION['id']);
+$movie_id  = intval($_POST['movie_id']);
 $review_id = intval($_POST['review_id']);
+$is_custom = intval($_POST['is_custom'] ?? 0);
 
 // Detect if the logged-in user has administrative rights
 $is_admin = (isset($_SESSION['role']) && $_SESSION['role'] === 'admin');
@@ -86,6 +87,7 @@ $stmt_rating->execute();
 Redirect back to your exact path (movie/index.php)
 --------------------------------------------------
 */
-header("Location: ../movie/index.php?id=" . $movie_id . "&status=deleted");
+$param = $is_custom ? "custom_id" : "id";
+header("Location: ../movie/?{$param}={$movie_id}&status=deleted");
 exit();
 ?>

@@ -6,33 +6,39 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>About Movies</title>
+    <link rel="stylesheet" href="../shared.css" />
     <link rel="stylesheet" href="about.css" />
 </head>
 
 <body>
-    <header>
-        <div class="logo">
-            <a href="../"><img src="../logo.png" alt="Movies" /></a>
-        </div>
-        <nav>
-            <ul>
-                <li class="dropdown">
-                    <a href="../search/">Search</a>
-                    <div class="dropdown-content">
-                        <a href="../search/category/">Search Category</a>
-                    </div>
-                </li>
-                <li><a href="../account/">Account</a></li>
-                <li class="dropdown">
-                    <a href="./">About</a>
-                    <div class="dropdown-content">
-                        <a href="./">About Us</a>
-                        <a href="movies.html">About Movies</a>
-                    </div>
-                </li>
-            </ul>
-        </nav>
-    </header>
+<header>
+    <div class="logo">
+        <a href="../index.php" class="logo-link">
+            <img src="../logo.png" alt="The Binge Box" />
+            <span class="site-name">The Binge Box</span>
+        </a>
+    </div>
+    <nav>
+        <ul>
+            <li class="dropdown">
+                <a href="../search/" class="nav-link">Search <span class="nav-arrow">&#9660;</span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="../search/">Search Movies</a></li>
+                    <li><a href="../search/category/">Browse by Genre</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="./" class="nav-link">About <span class="nav-arrow">&#9660;</span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="./">About Us</a></li>
+                    <li><a href="movies.html">About Movies</a></li>
+                </ul>
+            </li>
+            <li><a href="../account/" class="nav-link">Account</a></li>
+            <li><a href="../auth/login.php" class="nav-link nav-login">Login</a></li>
+        </ul>
+    </nav>
+</header>
     <main>
         <div class="container">
             <div class="titanddescription">
@@ -92,6 +98,27 @@
     <footer>
         <p>&copy; 2026 The Binge Box. All rights reserved.</p>
     </footer>
+
+<script>
+(function () {
+    document.querySelectorAll('.dropdown').forEach(function (dd) {
+        var toggle = dd.querySelector('.nav-link');
+        var menu   = dd.querySelector('.dropdown-menu');
+        if (!toggle || !menu) return;
+        toggle.addEventListener('click', function (e) {
+            e.preventDefault();
+            var open = menu.classList.contains('open');
+            document.querySelectorAll('.dropdown-menu.open').forEach(function (m) { m.classList.remove('open'); });
+            if (!open) menu.classList.add('open');
+        });
+    });
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.dropdown')) {
+            document.querySelectorAll('.dropdown-menu.open').forEach(function (m) { m.classList.remove('open'); });
+        }
+    });
+}());
+</script>
 </body>
 
 </html>

@@ -99,5 +99,16 @@ if ($file && $file['error'] !== UPLOAD_ERR_NO_FILE) {
     $ins->execute();
 }
 
+// Handle YouTube trailer URL
+$trailer_url = trim($_POST['trailer_url'] ?? '');
+$del_trailer = $con->prepare("DELETE FROM dbProj_media WHERE movie_id = ? AND media_type = 'video'");
+$del_trailer->bind_param("i", $movie_id);
+$del_trailer->execute();
+if ($trailer_url !== '' && filter_var($trailer_url, FILTER_VALIDATE_URL)) {
+    $ins_trailer = $con->prepare("INSERT INTO dbProj_media (movie_id, media_type, file_url) VALUES (?, 'video', ?)");
+    $ins_trailer->bind_param("is", $movie_id, $trailer_url);
+    $ins_trailer->execute();
+}
+
 header("Location: all_movies.php?msg=movie_updated");
 exit();

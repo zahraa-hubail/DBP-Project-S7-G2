@@ -16,7 +16,7 @@ $base_path = $base_path ?? "";
         <ul>
             <li class="dropdown">
                 <a href="<?= $base_path ?>search/" class="nav-link">
-                    Browse <span class="nav-arrow">&#9660;</span>
+                    Search <span class="nav-arrow">&#9660;</span>
                 </a>
                 <ul class="dropdown-menu">
                     <li><a href="<?= $base_path ?>search/">Search Movies</a></li>
